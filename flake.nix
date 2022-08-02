@@ -5,9 +5,10 @@
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-unstable";
     utils.url = "github:numtide/flake-utils";
+    flake-compat-ci.url = "github:hercules-ci/flake-compat-ci";
   };
 
-  outputs = { self, nixpkgs, utils, ... }: utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, utils, flake-compat-ci, ... }: utils.lib.eachDefaultSystem (system:
     let
       pkgs = import nixpkgs {
         inherit system;
@@ -135,6 +136,14 @@
           squiggle-website = pkgs.recurseIntoAttrs squiggle-website;
         };
       };
-      # defaultPackage = squiggle-website;
+      defaultPackage = squiggle-website;
+      ciNix = flake-compat-ci.lib.recurseIntoFlakeWith {
+        flake = self;
+
+        # Optional. Systems for which to perform CI.
+        # By default, every system attr in the flake will be built.
+        # Example: [ "x86_64-darwin" "aarch64-linux" ];
+        systems = [ system ];
+      };
     });
 }
