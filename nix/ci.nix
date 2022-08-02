@@ -3,12 +3,21 @@ builtins.mapAttrs (k: _v:
   let
     url = "https://github.com/NixOS/nixpkgs/archive/2255f292063ccbe184ff8f9b35ce475c04d5ae69.tar.gz";
     pkgs = import (builtins.fetchTarball url) { system = k; };
-    squiggleMonorepo = import ./squiggleMonorepo.nix { inherit pkgs; }; 
-    squiggleLang = import ./squiggle-lang/squiggleLang.nix { inherit pkgs; }; 
-    squiggleComponents = import ./components/squiggleComponents.nix { inherit pkgs; }; 
-    squiggleWebsite = import ./website/squiggleWebsite.nix { inherit pkgs; }; 
+    squiggleMonorepo = import ./compositionMonorepo.nix { inherit pkgs; };
+    squiggleLang = import ./squiggle-lang/compositionLang.nix { inherit pkgs; };
+    squiggleComponents = import ./components/compositionComponents.nix { inherit pkgs; };
+    squiggleWebsite = import ./website/compositionWebsite.nix { inherit pkgs; };
+    squiggleVscodeext = import ./vscode-ext/compositionVscodeext.nix { inherit pkgs; };
   in
   pkgs.recurseIntoAttrs {
+    lint = let nodeDependencies = squiggleMonorepo.nodeDependencies;
+      in pkgs.stdenv.mkDerivation {
+        name = "squiggle-linting";
+        src = ./..;
+        buildInputs = [ pkgs.yarn ];
+        buildPhase = "yarn lint:all";
+        installPhase = "echo 'lint passed!'";
+      };
     lang = let nodeDependencies = squiggleLang.nodeDependencies;
       in pkgs.stdenv.mkDerivation {
         name = "squiggle-lang";
@@ -35,7 +44,6 @@ builtins.mapAttrs (k: _v:
         installPhase = ''
           mkdir -p $out
           cp -r dist $out/
-          echo "'installing' lang"
         '';
     };
     components = let nodeDependencies = squiggleComponents.nodeDependencies;
@@ -55,7 +63,6 @@ builtins.mapAttrs (k: _v:
             mkdir -p $out
             cp -r dist $out/
             cp -r public $out/
-            echo "'installing' components"
           '';
         };
     website = let nodeDependencies = squiggleWebsite.nodeDependencies;
@@ -73,7 +80,23 @@ builtins.mapAttrs (k: _v:
           installPhase = ''
             mkdir -p $out
             cp -r build $out/
-            echo "'installing' website"
+          '';
+        };
+    vscode-ext = let nodeDependencies = squiggleVscodeext.nodeDependencies;
+        in pkgs.stdenv.mkDerivation {
+          name = "squiggle-vscode";
+          src = ./../packages/vscode-ext;
+          buildInputs = [ pkgs.yarn ];
+          buildPhase = ''
+            mkdir -p ./node_modules
+            ln -s ${nodeDependencies}/lib/node_modules ./node_modules
+            export PATH="${nodeDependencies}/bin:$PATH"
+
+            yarn --offline compile
+          '';
+          installPhase = ''
+            mkdir -p $out
+            cp -r media/vendor $out/
           '';
         };
   }

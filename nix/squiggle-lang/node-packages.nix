@@ -5229,7 +5229,7 @@ let
     name = "_at_quri_slash_squiggle-lang";
     packageName = "@quri/squiggle-lang";
     version = "0.2.11";
-    src = ./../../packages/squiggle-lang;
+    src = ../../packages/squiggle-lang;
     dependencies = [
       sources."@ampproject/remapping-2.2.0"
       sources."@babel/code-frame-7.18.6"

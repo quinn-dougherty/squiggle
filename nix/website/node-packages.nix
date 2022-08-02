@@ -10719,7 +10719,7 @@ let
     name = "squiggle-website";
     packageName = "squiggle-website";
     version = "0.2.1";
-    src = ./../../packages/website;
+    src = ../../packages/website;
     dependencies = [
       sources."@algolia/autocomplete-core-1.7.1"
       sources."@algolia/autocomplete-preset-algolia-1.7.1"

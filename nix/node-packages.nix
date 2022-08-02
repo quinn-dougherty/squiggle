@@ -18,7 +18,7 @@ let
     name = "squiggle";
     packageName = "squiggle";
     version = "0.2.0";
-    src = ./.;
+    src = ./..;
     dependencies = [
       sources."prettier-2.7.1"
     ];

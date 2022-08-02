@@ -1975,13 +1975,13 @@ let
         sha512 = "LwzQKA4vzIct1zNZzBmRKI9QuNpLgTQMEjsQLf3BXuGYb3QPTP4Yjf6mkdX+X1mYttZ808QpOwAzZjv28kq7DA==";
       };
     };
-    "@sinclair/typebox-0.24.25" = {
+    "@sinclair/typebox-0.24.26" = {
       name = "_at_sinclair_slash_typebox";
       packageName = "@sinclair/typebox";
-      version = "0.24.25";
+      version = "0.24.26";
       src = fetchurl {
-        url = "https://registry.npmjs.org/@sinclair/typebox/-/typebox-0.24.25.tgz";
-        sha512 = "Z0b1gkfeHzRQen7juqXIZ4P2nvI6vZV+m/PhxBlVsNH/jSg2FuqJ+x4haFFIbbct6LMA7m6x2sBob/Giecj09A==";
+        url = "https://registry.npmjs.org/@sinclair/typebox/-/typebox-0.24.26.tgz";
+        sha512 = "1ZVIyyS1NXDRVT8GjWD5jULjhDyM3IsIHef2VGUMdnWOlX2tkPjyEX/7K0TGSH2S8EaPhp1ylFdjSjUGQ+gecg==";
       };
     };
     "@sinonjs/commons-1.8.3" = {
@@ -17955,7 +17955,7 @@ let
     name = "_at_quri_slash_squiggle-components";
     packageName = "@quri/squiggle-components";
     version = "0.2.24";
-    src = ./../../packages/components;
+    src = ../../packages/components;
     dependencies = [
       (sources."@ampproject/remapping-2.2.0" // {
         dependencies = [
@@ -18399,7 +18399,7 @@ let
         ];
       })
       sources."@rushstack/eslint-patch-1.1.4"
-      sources."@sinclair/typebox-0.24.25"
+      sources."@sinclair/typebox-0.24.26"
       sources."@sinonjs/commons-1.8.3"
       sources."@sinonjs/fake-timers-8.1.0"
       sources."@stdlib/array-0.0.12"
