@@ -15,7 +15,13 @@ builtins.mapAttrs (k: _v:
         name = "squiggle-linting";
         src = ./..;
         buildInputs = [ pkgs.yarn ];
-        buildPhase = "yarn --offline lint:all";
+        buildPhase = ''
+          mkdir -p ./node_modules
+          ln -s ${nodeDependencies}/lib/node_modules ./node_modules
+          export PATH="${nodeDependencies}/bin:$PATH"
+
+          yarn --offline lint:all
+        '';
         installPhase = "echo 'lint passed!'";
       };
     lang = let nodeDependencies = squiggleLang.nodeDependencies;
@@ -29,13 +35,12 @@ builtins.mapAttrs (k: _v:
           export PATH="${nodeDependencies}/bin:$PATH"
 
           # Long story
-          drvNamePart="squiggle-lang"
           theLd=$(patchelf --print-interpreter $(which mkdir))
           patchelf --set-interpreter $theLd ./node_modules/gentype/gentype.exe
           patchelf --set-interpreter $theLd ./node_modules/rescript/linux/*.exe
           patchelf --set-interpreter $theLd ./node_modules/bisect_ppx/ppx
           patchelf --set-interpreter $theLd ./node_modules/bisect_ppx/bisect-ppx-report
-          theSo=$(find /nix/store/*$drvNamePart*/lib64 -name libstdc++.so.6 | grep $drvNamePart | head -n 1)
+          theSo=$(find /nix/store/*/lib64 -name libstdc++.so.6 | head -n 1)
           patchelf --replace-needed libstdc++.so.6 $theSo ./node_modules/rescript/linux/ninja.exe
 
           yarn --offline build
