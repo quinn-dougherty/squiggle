@@ -4,15 +4,9 @@
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-unstable";
-    utils.url = "github:numtide/flake-utils";
-    flake-compat-ci.url = "github:hercules-ci/flake-compat-ci";
-    flake-compat = {
-      url = "github:edolstra/flake-compat";
-      flake = false;
-    };
   };
 
-  outputs = { self, nixpkgs, utils, flake-compat-ci, flake-compat, ... }:
+  outputs = { self, nixpkgs, ... }:
     let
       pkgs = import nixpkgs {
         system = "x86_64-linux";
@@ -52,22 +46,24 @@
         name = "squiggle-lang-lint";
         src = squiggle-lang-yarnPackage + "/libexec/@quri/squiggle-lang/deps/@quri/squiggle-lang";
         buildInputs = commonBuildInputs;
+        # Can only do prettier because `.lint.sh` script for rescript doesn't work,
+        # see https://stackoverflow.com/questions/18018359/all-newlines-are-removed-when-saving-cat-output-into-a-variable
         buildPhase = "yarn lint:prettier";
         installPhase = "mkdir -p $out";
       };
       squiggle-lang = pkgs.stdenv.mkDerivation {
             name = "squiggle-lang";
-            src = squiggle-lang-yarnPackage + "/libexec/@quri/squiggle-lang/deps/@quri/squiggle-lang";
+            src = squiggle-lang-yarnPackage + "/libexec/@quri/squiggle-lang/";
             buildInputs = commonBuildInputs;
-            buildPhase = "yarn pack";
+            buildPhase = "cd deps/@quri/squiggle-lang && yarn pack";
             installPhase = ''
               mkdir -p $out
               cp -r $src/libexec/@quri/squiggle-lang/deps/@quri/squiggle-lang/dist $out/dist
-              # rm $out/bin/node_modules
               cp -r $src/libexec/@quri/squiggle-lang/node_modules/ $out/node_modules
-              # cp -r $src/libexec/@quri/squiggle-lang/dist $out/dist
             '';
       };
+
+
 
     in rec {
 
@@ -77,7 +73,7 @@
 
           squiggle-lang-lint.outputs.squiggle-lang-lint = squiggle-lang-lint;
 
-          squiggle-components = pkgs.recurseIntoAttrs (let
+          squiggle-components.outputs.squiggle-components = pkgs.recurseIntoAttrs (let
 
             # base mkYarnPackage config
             components = pkgs.mkYarnPackage {
@@ -115,7 +111,7 @@
             '';
           });
 
-          squiggle-website = pkgs.recurseIntoAttrs (let
+          squiggle-website.outputs.squiggle-website = pkgs.recurseIntoAttrs (let
             # base mkYarnPackage config
             website = pkgs.mkYarnPackage {
               name = "squiggle-website";
