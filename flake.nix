@@ -15,7 +15,7 @@
   outputs = { self, nixpkgs, utils, flake-compat-ci, flake-compat, ... }:
     let
       pkgs = import nixpkgs {
-        inherit system;
+        system = "x86_64-linux";
         overlays = [  ];
       };
 
