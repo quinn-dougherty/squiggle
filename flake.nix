@@ -51,7 +51,7 @@
           '';
       };
 
-    in {
+    in rec {
 
       herculesCI = { ... }: {
         onPush = {
