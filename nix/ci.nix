@@ -24,7 +24,7 @@ builtins.mapAttrs (k: _v:
         '';
         installPhase = "echo 'lint passed!'";
       };
-    lang = let nodeDependencies = import ./overrides.nix { inherit pkgs; }; # squiggleLang.nodeDependencies;
+    lang = let nodeDependencies = import ./squiggle-lang/overrides.nix { inherit pkgs; }; # squiggleLang.nodeDependencies;
       in pkgs.stdenv.mkDerivation {
         name = "squiggle-lang";
         src = ./../packages/squiggle-lang;
