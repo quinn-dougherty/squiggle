@@ -15,7 +15,7 @@ builtins.mapAttrs (k: _v:
         name = "squiggle-linting";
         src = ./..;
         buildInputs = [ pkgs.yarn ];
-        buildPhase = "yarn lint:all";
+        buildPhase = "yarn --offline lint:all";
         installPhase = "echo 'lint passed!'";
       };
     lang = let nodeDependencies = squiggleLang.nodeDependencies;
