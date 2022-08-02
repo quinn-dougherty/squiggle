@@ -23,7 +23,7 @@ builtins.mapAttrs (k: _v:
         '';
         installPhase = ''
           mkdir -p $out
-          cp -r dist $out/dist
+          cp -r dist $out/
         '';
     };
     components = let nodeDependencies = squiggleComponents.nodeDependencies;
@@ -40,8 +40,8 @@ builtins.mapAttrs (k: _v:
           '';
           installPhase = ''
             mkdir -p $out
-            cp -r dist $out/dist
-            cp -r public $out/dist
+            cp -r dist $out/
+            cp -r public $out/
           '';
         };
   }
