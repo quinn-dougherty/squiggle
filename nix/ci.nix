@@ -26,8 +26,8 @@ builtins.mapAttrs (k: _v:
           patchelf --set-interpreter $theLd ./node_modules/rescript/linux/*.exe
           patchelf --set-interpreter $theLd ./node_modules/bisect_ppx/ppx
           patchelf --set-interpreter $theLd ./node_modules/bisect_ppx/bisect-ppx-report
-          # theSo=$(find /nix/store/*$drvNamePart*/lib64 -name libstdc++.so.6 | grep $drvNamePart | head -n 1)
-          # patchelf --replace-needed libstdc++.so.6 $theSo ./node_modules/rescript/linux/ninja.exe
+          theSo=$(find /nix/store/*$drvNamePart*/lib64 -name libstdc++.so.6 | grep $drvNamePart | head -n 1)
+          patchelf --replace-needed libstdc++.so.6 $theSo ./node_modules/rescript/linux/ninja.exe
 
           yarn --offline build
           yarn --offline bundle
