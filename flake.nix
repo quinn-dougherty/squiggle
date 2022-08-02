@@ -33,7 +33,7 @@
             yarnLock = ./yarn.lock;
 
             # this runs after the packages are installed
-            pkgConfig.postInstall = "yarn build";
+            pkgConfig.postInstall = "yarn build && yarn bundle";
 
             # for testing
             yarnFlags = [
