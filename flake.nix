@@ -40,21 +40,22 @@
           ];
         };
         # mkYarnPackage puts teh compelted files in a really nestled directory
-      in pkgs.stdenv.mkDerivation {
-        name = "squiggle-website";
-        src = website;
-        installPhase = ''
-          mkdir -p $out
-          cp -R $ src/libexec/squiggle-website/deps/squiggle-website/. $out
-          rm $out/bin/node_modules
-          cp -R $src/libexec/squiggle-website/node_modules/. $out/node_modules
-        '';
+        in pkgs.stdenv.mkDerivation {
+          name = "squiggle-website";
+          src = website;
+          installPhase = ''
+            mkdir -p $out
+            cp -R $ src/libexec/squiggle-website/deps/squiggle-website/. $out
+            rm $out/bin/node_modules
+            cp -R $src/libexec/squiggle-website/node_modules/. $out/node_modules
+          '';
       };
 
     in {
 
       herculesCI = { ... }: {
-        onPush.squiggle-lang = let
+        onPush = {
+          squiggle-lang = let
 
             # base mkYarnPackage config
             lang = pkgs.mkYarnPackage rec {
@@ -92,7 +93,7 @@
             '';
           };
 
-        onPush.squiggle-components = let
+          squiggle-components = let
 
             # base mkYarnPackage config
             components = pkgs.mkYarnPackage rec {
@@ -129,8 +130,8 @@
             '';
           };
 
-        onPush.squiggle-website = squiggle-website;
-
+          squiggle-website = squiggle-website;
+        };
       };
       defaultPackage.x86_64-linux = squiggle-website;
     };
