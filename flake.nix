@@ -21,37 +21,50 @@
 
       # set the node version here
       nodejs = pkgs.nodejs-16_x;
+      commonBuildInputs = [ nodejs pkgs.yarn ];
 
-      squiggle-lang-yarnPackage = pkgs.mkYarnPackage {
-              name = "@quri/squiggle-lang_from-source";
+      squiggle-lang-yarnPackage = pkgs.mkYarnPackage rec {
+              name = "squiggle-lang_source";
               buildInputs = [
                 nodejs pkgs.ninja
               ];
-              src = ./.;
+              src = ./packages/squiggle-lang;
               packageJSON = ./packages/squiggle-lang/package.json;
               yarnLock = ./yarn.lock;
-
-              # this runs after the packages are installed
-              pkgConfig.postInstall = "yarn build && yarn bundle";
 
               # for testing
               yarnFlags = [
                 "--offline"
                 "--frozen-lockfile"
                 "--ignore-engines"
-                "--ignore-scripts"
                 "--verbose"
               ];
-              distPhase = ":";
+              patchPhase = ''
+                mkdir -p tmpGlobal
+                echo "--pack.offline true" >> .yarnrc
+                echo "--lint.offline true" >> .yarnrc
+                echo "--pack.frozen-lockfile true" >> .yarnrc
+                echo "--pack.verbose true" >> .yarnrc
+                echo "--build:rescript.global-folder tmpGlobal" >> .yarnrc
+              '';
+      };
+      squiggle-lang-lint = pkgs.stdenv.mkDerivation {
+        name = "squiggle-lang-lint";
+        src = squiggle-lang-yarnPackage + "/libexec/@quri/squiggle-lang/deps/@quri/squiggle-lang";
+        buildInputs = commonBuildInputs;
+        buildPhase = "yarn lint:prettier";
+        installPhase = "mkdir -p $out";
       };
       squiggle-lang = pkgs.stdenv.mkDerivation {
             name = "squiggle-lang";
-            src = squiggle-lang-yarnPackage;
+            src = squiggle-lang-yarnPackage + "/libexec/@quri/squiggle-lang/deps/@quri/squiggle-lang";
+            buildInputs = commonBuildInputs;
+            buildPhase = "yarn pack";
             installPhase = ''
               mkdir -p $out
-              cp -R $src/libexec/@quri/squiggle-lang/deps/@quri/squiggle-lang/. $out
+              cp -r $src/libexec/@quri/squiggle-lang/deps/@quri/squiggle-lang/dist $out/dist
               # rm $out/bin/node_modules
-              cp -R $src/libexec/@quri/squiggle-lang/node_modules/. $out/node_modules
+              cp -r $src/libexec/@quri/squiggle-lang/node_modules/ $out/node_modules
               # cp -r $src/libexec/@quri/squiggle-lang/dist $out/dist
             '';
       };
@@ -60,7 +73,9 @@
 
       herculesCI = {
         onPush = {
-          squiggle-lang = squiggle-lang;
+          squiggle-lang.outputs.squiggle-lang = squiggle-lang;
+
+          squiggle-lang-lint.outputs.squiggle-lang-lint = squiggle-lang-lint;
 
           squiggle-components = pkgs.recurseIntoAttrs (let
 
@@ -136,9 +151,9 @@
           });
         };
       };
-      defaultPackage.x86_64-linux = herculesCI.onPush.squiggle-lang;
-      ciNix = flake-compat-ci.lib.recurseIntoFlakeWith {
-        flake = self;
-      };
+      # defaultPackage.x86_64-linux = squiggle-lang-lint; # herculesCI.onPush.squiggle-lang-yarnPackage;
+      # ciNix = flake-compat-ci.lib.recurseIntoFlakeWith {
+      #  flake = self;
+      #};
     };
 }
