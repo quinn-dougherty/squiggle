@@ -13,10 +13,20 @@ builtins.mapAttrs (k: _v:
       in pkgs.stdenv.mkDerivation {
         name = "squiggle-lang";
         src = ./../packages/squiggle-lang;
-        buildInputs = [ pkgs.yarn ];
+        buildInputs = with pkgs; [ yarn patchelf ];
         buildPhase = ''
           ln -s ${nodeDependencies}/lib/node_modules ./node_modules
           export PATH="${nodeDependencies}/bin:$PATH"
+
+          # Long story
+          drvNamePart="squiggle-lang"
+          theLd=$(patchelf --print-interpreter $(which mkdir))
+          patchelf --set-interpreter $theLd ./node_modules/gentype/gentype.exe
+          patchelf --set-interpreter $theLd ./node_modules/rescript/linux/*.exe
+          patchelf --set-interpreter $theLd ./node_modules/bisect_ppx/ppx
+          patchelf --set-interpreter $theLd ./node_modules/bisect_ppx/bisect-ppx-report
+          # theSo=$(find /nix/store/*$drvNamePart*/lib64 -name libstdc++.so.6 | grep $drvNamePart | head -n 1)
+          # patchelf --replace-needed libstdc++.so.6 $theSo ./node_modules/rescript/linux/ninja.exe
 
           yarn --offline build
           yarn --offline bundle
