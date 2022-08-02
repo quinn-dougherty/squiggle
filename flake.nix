@@ -1,5 +1,5 @@
 {
-  description = "Squiggle";
+  description = "Squiggle CI";
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-unstable";
@@ -132,6 +132,17 @@
         };
 
       defaultPackage = packages."${packageNameBase}-website";
+
+      herculesCI = { ... }: {
+        onPush.default = {
+          outputs = { ... }: {
+            # Attributes here will be built for each push.
+            website = defaultPackage;
+            components = packages."${packageNameBase}-components";
+            lang = packages."${packageNameBase}-lang";
+          };
+        };
+      };
 
     });
 }
