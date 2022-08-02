@@ -133,6 +133,6 @@
           squiggle-website = squiggle-website;
         };
       };
-      defaultPackage.x86_64-linux = squiggle-website;
+      # defaultPackage.x86_64-linux = squiggle-website;
     };
 }
