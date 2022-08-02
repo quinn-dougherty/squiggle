@@ -5229,7 +5229,7 @@ let
     name = "_at_quri_slash_squiggle-lang";
     packageName = "@quri/squiggle-lang";
     version = "0.2.11";
-    src = ./.;
+    src = ./../../packages/squiggle-lang;
     dependencies = [
       sources."@ampproject/remapping-2.2.0"
       sources."@babel/code-frame-7.18.6"
@@ -6070,7 +6070,7 @@ in
         "!package-lock.json"
       ] args.src;
       dontBuild = true;
-      installPhase = "mkdir -p $out; ls *; cp -r ./* $out;";
+      installPhase = "mkdir -p $out; cp -r ./* $out;";
     };
   });
 }

@@ -17955,7 +17955,7 @@ let
     name = "_at_quri_slash_squiggle-components";
     packageName = "@quri/squiggle-components";
     version = "0.2.24";
-    src = ./.;
+    src = ./../../packages/components;
     dependencies = [
       (sources."@ampproject/remapping-2.2.0" // {
         dependencies = [
