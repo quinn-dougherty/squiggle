@@ -22,8 +22,9 @@ builtins.mapAttrs (k: _v:
           yarn --offline bundle
         '';
         installPhase = ''
-          mkdir -p $out
-          cp -r dist $out/
+          # mkdir -p $out
+          # cp -r dist $out/
+          echo "'installing' lang"
         '';
     };
     components = let nodeDependencies = squiggleComponents.nodeDependencies;
@@ -39,9 +40,10 @@ builtins.mapAttrs (k: _v:
             yarn --offline build
           '';
           installPhase = ''
-            mkdir -p $out
-            cp -r dist $out/
-            cp -r public $out/
+            # mkdir -p $out
+            # cp -r dist $out/
+            # cp -r public $out/
+            echo "'installing' components"
           '';
         };
   }
