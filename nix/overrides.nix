@@ -3,7 +3,7 @@
 }, system ? builtins.currentSystem}:
 
 let
-  nodeDependencies = (import ./compositionLang.nix {
+  nodeDependencies = (import ./squiggle-lang/compositionLang.nix {
     inherit pkgs system;
   }).nodeDependencies;
 in
