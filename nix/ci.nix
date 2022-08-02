@@ -9,33 +9,41 @@ builtins.mapAttrs (k: _v:
     squiggleWebsite = import ./website/squiggleWebsite.nix { inherit pkgs; }; 
   in
   pkgs.recurseIntoAttrs {
-    lang = pkgs.stdenv.mkDerivation {
-      name = "squiggle-lang";
-      src = ./../packages/squiggle-lang;
-      buildInputs = squiggleLang.nodeDependencies + [ pkgs.yarn ];
-      buildPhase = ''
-        yarn build
-        yarn bundle
-      '';
-      installPhase = ''
-        mkdir -p $out
-        cp -r dist $out
-        '';
+    lang = let nodeDependencies = squiggleLang.nodeDependencies;
+      in pkgs.stdenv.mkDerivation {
+        name = "squiggle-lang";
+        src = ./../packages/squiggle-lang;
+        buildInputs = [ pkgs.yarn ];
+        buildPhase = ''
+          ln -s ${nodeDependencies}/lib/node_modules ./node_modules
+          export PATH="${nodeDependencies}/bin:$PATH"
 
+          yarn --offline build
+          yarn --offline bundle
+        '';
+        installPhase = ''
+          mkdir -p $out
+          cp -r dist $out
+        '';
     };
-    components = pkgs.stdenv.mkDerivation {
-      name = "squiggle-components";
-      src = ./../packages/components;
-      buildInputs = squiggleComponents.nodeDependencies + [ pkgs.yarn ];
-      buildPhase = ''
-        yarn all
-      '';
-      installPhase = ''
-        mkdir -p $out
-        cp -r dist $out
-        cp -r public $out
-      '';
-    };
+    components = let nodeDependencies = squiggleComponents.nodeDependencies;
+        in pkgs.stdenv.mkDerivation {
+          name = "squiggle-components";
+          src = ./../packages/components;
+          buildInputs = [ pkgs.yarn ];
+          buildPhase = ''
+            ln -s ${nodeDependencies}/lib/node_modules ./node_modules
+            export PATH="${nodeDependencies}/bin:$PATH"
+
+            yarn --offline bundle
+            yarn --offline build
+          '';
+          installPhase = ''
+            mkdir -p $out
+            cp -r dist $out
+            cp -r public $out
+          '';
+        };
   }
 ) {
   x86_64-linux = {};

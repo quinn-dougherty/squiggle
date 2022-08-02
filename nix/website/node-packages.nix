@@ -4522,13 +4522,13 @@ let
         sha512 = "WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==";
       };
     };
-    "electron-to-chromium-1.4.207" = {
+    "electron-to-chromium-1.4.208" = {
       name = "electron-to-chromium";
       packageName = "electron-to-chromium";
-      version = "1.4.207";
+      version = "1.4.208";
       src = fetchurl {
-        url = "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.4.207.tgz";
-        sha512 = "piH7MJDJp4rJCduWbVvmUd59AUne1AFBJ8JaRQvk0KzNTSUnZrVXHCZc+eg+CGE4OujkcLJznhGKD6tuAshj5Q==";
+        url = "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.4.208.tgz";
+        sha512 = "diMr4t69FigAGUk2KovP0bygEtN/9AkqEVkzjEp0cu+zFFbZMVvwACpTTfuj1mAmFR5kNoSW8wGKDFWIvmThiQ==";
       };
     };
     "emoji-regex-8.0.0" = {
@@ -11400,7 +11400,7 @@ let
       sources."duplexer3-0.1.5"
       sources."eastasianwidth-0.2.0"
       sources."ee-first-1.1.1"
-      sources."electron-to-chromium-1.4.207"
+      sources."electron-to-chromium-1.4.208"
       sources."emoji-regex-8.0.0"
       sources."emojis-list-3.0.0"
       sources."emoticon-3.2.0"
@@ -12302,7 +12302,7 @@ let
     meta = {
       license = "MIT";
     };
-    production = true;
+    production = false;
     bypassCache = true;
     reconstructLock = true;
   };

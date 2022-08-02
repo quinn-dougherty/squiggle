@@ -3,16 +3,29 @@
 {nodeEnv, fetchurl, fetchgit, nix-gitignore, stdenv, lib, globalBuildInputs ? []}:
 
 let
-  sources = {};
+  sources = {
+    "prettier-2.7.1" = {
+      name = "prettier";
+      packageName = "prettier";
+      version = "2.7.1";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/prettier/-/prettier-2.7.1.tgz";
+        sha512 = "ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g==";
+      };
+    };
+  };
   args = {
     name = "squiggle";
     packageName = "squiggle";
     version = "0.2.0";
     src = ./.;
+    dependencies = [
+      sources."prettier-2.7.1"
+    ];
     buildInputs = globalBuildInputs;
     meta = {
     };
-    production = true;
+    production = false;
     bypassCache = true;
     reconstructLock = true;
   };
