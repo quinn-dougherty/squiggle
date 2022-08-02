@@ -138,7 +138,7 @@
           });
         };
       };
-      defaultPackage.x86_64-linux = (herculesCI {}).onPush.squiggle-website;
+      defaultPackage.x86_64-linux = (herculesCI {}).onPush.squiggle-lang;
       ciNix = flake-compat-ci.lib.recurseIntoFlakeWith {
         flake = self;
 
