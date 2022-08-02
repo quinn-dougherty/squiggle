@@ -19,9 +19,7 @@
 
       squiggle-lang-yarnPackage = pkgs.mkYarnPackage rec {
               name = "squiggle-lang_source";
-              buildInputs = [
-                nodejs pkgs.ninja
-              ];
+              buildInputs = commonBuildInputs;
               src = ./packages/squiggle-lang;
               packageJSON = ./packages/squiggle-lang/package.json;
               yarnLock = ./yarn.lock;
@@ -63,45 +61,34 @@
             '';
       };
 
+      squiggle-components-yarnPackage = pkgs.mkYarnPackage rec {
+        name = "squiggle-components_source";
+        buildInputs = commonBuildInputs;
+        src = ./.;
+        packageJSON = ./packages/components/package.json;
+        yarnLock = ./yarn.lock;
 
+        # this runs after the packages are installed
+        pkgConfig.postInstall = "yarn all";
 
-    in rec {
-
-      herculesCI = {
-        onPush = {
-          squiggle-lang.outputs.squiggle-lang = squiggle-lang;
-
-          squiggle-lang-lint.outputs.squiggle-lang-lint = squiggle-lang-lint;
-
-          squiggle-components.outputs.squiggle-components = pkgs.recurseIntoAttrs (let
-
-            # base mkYarnPackage config
-            components = pkgs.mkYarnPackage {
-              name = "squiggle-components";
-              buildInputs = [
-                nodejs
-              ];
-              src = ./.;
-              packageJSON = ./packages/components/package.json;
-              yarnLock = ./yarn.lock;
-
-              # this runs after the packages are installed
-              pkgConfig.postInstall = "yarn all";
-
-              # for testing
-              yarnFlags = [
-                "--offline"
-                "--frozen-lockfile"
-                "--ignore-engines"
-                "--ignore-scripts"
-                "--verbose"
-              ];
-            };
-
-          # mkYarnPackage puts the completed files in a really nestled directory
-          in pkgs.stdenv.mkDerivation {
+        # for testing
+        yarnFlags = [
+          "--offline"
+          "--frozen-lockfile"
+          "--ignore-engines"
+          "--ignore-scripts"
+          "--verbose"
+        ];
+      };
+      squiggle-components-lint = pkgs.stdenv.mkDerivation {
+        name = "squiggle-components-lint";
+        src = squiggle-components-yarnPackage + "/libexec/@quri/squiggle-components/deps/@quri/squiggle-components";
+        buildPhase = "yarn lint";
+        installPhase = "mkdir -p $out";
+      };
+      squiggle-components = pkgs.stdenv.mkDerivation {
             name = "squiggle-components";
-            src = components;
+            src = squiggle-components-yarnPackage + "/libexec/@quri/squiggle-components/deps/@quri/squiggle-components";
             buildPhase = "yarn all";
             installPhase = ''
               mkdir -p $out
@@ -109,7 +96,20 @@
               rm $out/bin/node_modules
               cp -R $src/libexec/squiggle-components/node_modules/. $out/node_modules
             '';
-          });
+          };
+
+    in rec {
+
+      herculesCI = {
+        onPush = {
+          squiggle-lang.outputs = {
+            squiggle-lang = squiggle-lang;
+            squiggle-lang-lint = squiggle-lang-lint;
+          };
+          squiggle-components-lint.outputs = {
+            squiggle-components = squiggle-components;
+            squiggle-components-lint = squiggle-components-lint;
+          };
 
           squiggle-website.outputs.squiggle-website = pkgs.recurseIntoAttrs (let
             # base mkYarnPackage config
@@ -147,9 +147,5 @@
           });
         };
       };
-      # defaultPackage.x86_64-linux = squiggle-lang-lint; # herculesCI.onPush.squiggle-lang-yarnPackage;
-      # ciNix = flake-compat-ci.lib.recurseIntoFlakeWith {
-      #  flake = self;
-      #};
     };
 }
