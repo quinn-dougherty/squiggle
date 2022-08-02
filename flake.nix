@@ -22,15 +22,8 @@
       # set the node version here
       nodejs = pkgs.nodejs-16_x;
 
-    in rec {
-
-      herculesCI = { ... }: {
-        onPush = {
-          squiggle-lang = let
-
-            # base mkYarnPackage config
-            lang = pkgs.mkYarnPackage {
-              name = "squiggle-lang";
+      squiggle-lang-yarnPackage = pkgs.mkYarnPackage {
+              name = "@quri/squiggle-lang_from-source";
               buildInputs = [
                 nodejs pkgs.ninja
               ];
@@ -49,20 +42,25 @@
                 "--ignore-scripts"
                 "--verbose"
               ];
-            };
-
-          # mkYarnPackage puts teh compelted files in a really nestled directory
-          in pkgs.stdenv.mkDerivation {
+              distPhase = ":";
+      };
+      squiggle-lang = pkgs.stdenv.mkDerivation {
             name = "squiggle-lang";
-            src = lang;
+            src = squiggle-lang-yarnPackage;
             installPhase = ''
               mkdir -p $out
-              cp -R $src/libexec/squiggle-lang/deps/squiggle-lang/. $out
-              rm $out/bin/node_modules
-              cp -R $src/libexec/squiggle-lang/node_modules/. $out/node_modules
-              cp -r $src/libexec/squiggle-lang/dist $out/dist
+              cp -R $src/libexec/@quri/squiggle-lang/deps/@quri/squiggle-lang/. $out
+              # rm $out/bin/node_modules
+              cp -R $src/libexec/@quri/squiggle-lang/node_modules/. $out/node_modules
+              # cp -r $src/libexec/@quri/squiggle-lang/dist $out/dist
             '';
-          };
+      };
+
+    in rec {
+
+      herculesCI = {
+        onPush = {
+          squiggle-lang = squiggle-lang;
 
           squiggle-components = pkgs.recurseIntoAttrs (let
 
@@ -138,14 +136,9 @@
           });
         };
       };
-      defaultPackage.x86_64-linux = (herculesCI {}).onPush.squiggle-lang;
+      defaultPackage.x86_64-linux = herculesCI.onPush.squiggle-lang;
       ciNix = flake-compat-ci.lib.recurseIntoFlakeWith {
         flake = self;
-
-        # Optional. Systems for which to perform CI.
-        # By default, every system attr in the flake will be built.
-        # Example: [ "x86_64-darwin" "aarch64-linux" ];
-        systems = [ "x86_64-linux" ];
       };
     };
 }
