@@ -6,9 +6,13 @@
     nixpkgs.url = "nixpkgs/nixos-unstable";
     utils.url = "github:numtide/flake-utils";
     flake-compat-ci.url = "github:hercules-ci/flake-compat-ci";
+    flake-compat = {
+      url = "github:edolstra/flake-compat";
+      flake = false;
+    };
   };
 
-  outputs = { self, nixpkgs, utils, flake-compat-ci, ... }: utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, utils, flake-compat-ci, flake-compat, ... }: utils.lib.eachDefaultSystem (system:
     let
       pkgs = import nixpkgs {
         inherit system;
