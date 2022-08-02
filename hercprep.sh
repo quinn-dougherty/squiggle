@@ -4,13 +4,6 @@
 set -e 
 set -x 
 
-rm nix/*/*
-mkdir -p nix/squiggle-lang
-mkdir -p nix/components
-mkdir -p nix/website
-mkdir -p nix/vscode-ext
-mkdir -p nix/cli
-
 node2nix \
     --development \
     -i package.json \
