@@ -4,12 +4,13 @@
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-unstable";
+    utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, ... }:
+  outputs = { self, nixpkgs, utils, ... }: utils.lib.eachDefaultSystem (system:
     let
       pkgs = import nixpkgs {
-        system = "x86_64-linux";
+        inherit system;
         overlays = [  ];
       };
 
@@ -18,12 +19,12 @@
 
       squiggle-website = let
         # base mkYarnPackage config
-        website = pkgs.mkYarnPackage rec {
+        website = pkgs.mkYarnPackage {
           name = "squiggle-website";
           buildInputs = [
             nodejs
           ];
-          src = self;
+          src = ./.;
           packageJSON = ./packages/website/package.json;
           yarnLock = ./yarn.lock;
 
@@ -58,12 +59,12 @@
           squiggle-lang = let
 
             # base mkYarnPackage config
-            lang = pkgs.mkYarnPackage rec {
+            lang = pkgs.mkYarnPackage {
               name = "squiggle-lang";
               buildInputs = [
                 nodejs pkgs.ninja
               ];
-              src = self;
+              src = ./.;
               packageJSON = ./packages/squiggle-lang/package.json;
               yarnLock = ./yarn.lock;
 
@@ -96,12 +97,12 @@
           squiggle-components = let
 
             # base mkYarnPackage config
-            components = pkgs.mkYarnPackage rec {
+            components = pkgs.mkYarnPackage {
               name = "squiggle-components";
               buildInputs = [
                 nodejs
               ];
-              src = self;
+              src = ./.;
               packageJSON = ./packages/components/package.json;
               yarnLock = ./yarn.lock;
 
@@ -134,6 +135,6 @@
           squiggle-website = squiggle-website;
         };
       };
-      # defaultPackage.x86_64-linux = squiggle-website;
-    };
+      defaultPackage = squiggle-website;
+    });
 }
