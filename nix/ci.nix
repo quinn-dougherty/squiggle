@@ -22,6 +22,8 @@ builtins.mapAttrs (k: _v:
           yarn --offline bundle
         '';
         installPhase = ''
+          # mkdir -p $out
+          # cp -r dist $out/
           echo "'installing' lang"
         '';
     };
@@ -38,6 +40,9 @@ builtins.mapAttrs (k: _v:
             yarn --offline build
           '';
           installPhase = ''
+            # mkdir -p $out
+            # cp -r dist $out/
+            # cp -r public $out/
             echo "'installing' components"
           '';
         };
