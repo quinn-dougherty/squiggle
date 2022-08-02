@@ -13,7 +13,7 @@ builtins.mapAttrs (k: _v:
       in pkgs.stdenv.mkDerivation {
         name = "squiggle-lang";
         src = ./../packages/squiggle-lang;
-        buildInputs = with pkgs; [ yarn patchelf ];
+        buildInputs = with pkgs; [ yarn patchelf python38 ];
         buildPhase = ''
           mkdir -p ./node_modules
           ln -s ${nodeDependencies}/lib/node_modules ./node_modules
@@ -33,8 +33,8 @@ builtins.mapAttrs (k: _v:
           yarn --offline bundle
         '';
         installPhase = ''
-          # mkdir -p $out
-          # cp -r dist $out/
+          mkdir -p $out
+          cp -r dist $out/
           echo "'installing' lang"
         '';
     };
@@ -52,9 +52,9 @@ builtins.mapAttrs (k: _v:
             yarn --offline build
           '';
           installPhase = ''
-            # mkdir -p $out
-            # cp -r dist $out/
-            # cp -r public $out/
+            mkdir -p $out
+            cp -r dist $out/
+            cp -r public $out/
             echo "'installing' components"
           '';
         };
