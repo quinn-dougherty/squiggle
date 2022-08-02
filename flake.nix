@@ -1,5 +1,6 @@
 {
   description = "Squiggle CI";
+  # Derived from https://gitlab.com/Silvers_Gw2/Stats_Frontend/-/blob/cc5d783abd54e95363410592c390ca6925462262/flake.nix
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-unstable";
@@ -16,9 +17,8 @@
       nodejs = pkgs.nodejs-16_x;
 
       squiggle-website = let
-
         # base mkYarnPackage config
-        website = pkgs.mkYarnPackage {
+        website = pkgs.mkYarnPackage rec {
           name = "squiggle-website";
           buildInputs = [
             nodejs
@@ -39,7 +39,6 @@
             "--verbose"
           ];
         };
-
         # mkYarnPackage puts teh compelted files in a really nestled directory
       in pkgs.stdenv.mkDerivation {
         name = "squiggle-website";
@@ -58,7 +57,7 @@
         onPush.squiggle-lang = let
 
             # base mkYarnPackage config
-            lang = pkgs.mkYarnPackage {
+            lang = pkgs.mkYarnPackage rec {
               name = "squiggle-lang";
               buildInputs = [
                 nodejs pkgs.ninja
@@ -89,13 +88,14 @@
               cp -R $src/libexec/squiggle-lang/deps/squiggle-lang/. $out
               rm $out/bin/node_modules
               cp -R $src/libexec/squiggle-lang/node_modules/. $out/node_modules
+              cp -r $src/libexec/squiggle-lang/dist $out/dist
             '';
           };
 
         onPush.squiggle-components = let
 
             # base mkYarnPackage config
-            components = pkgs.mkYarnPackage {
+            components = pkgs.mkYarnPackage rec {
               name = "squiggle-components";
               buildInputs = [
                 nodejs
@@ -117,7 +117,7 @@
               ];
             };
 
-          # mkYarnPackage puts teh compelted files in a really nestled directory
+          # mkYarnPackage puts the completed files in a really nestled directory
           in pkgs.stdenv.mkDerivation {
             name = "squiggle-components";
             src = components;
