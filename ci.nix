@@ -6,7 +6,7 @@ builtins.mapAttrs (k: _v:
   in
   pkgs.recurseIntoAttrs {
     # These two attributes will appear in your job for each platform.
-    squiggleMonorepo = import ./default.nix { inherit (pkgs) };
+    squiggleMonorepo = import ./default.nix { inherit pkgs; };
     sources = squiggleMonorepo.sources;  
   }
 ) {
