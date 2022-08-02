@@ -3,26 +3,62 @@
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-unstable";
-    utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, utils,  ... }: utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, ... }:
     let
       pkgs = import nixpkgs {
-        inherit system;
+        system = "x86_64-linux";
         overlays = [  ];
       };
 
       # set the node version here
       nodejs = pkgs.nodejs-16_x;
 
-    in rec {
+      squiggle-website = let
+
+        # base mkYarnPackage config
+        website = pkgs.mkYarnPackage {
+          name = "squiggle-website";
+          buildInputs = [
+            nodejs
+          ];
+          src = self;
+          packageJSON = ./packages/website/package.json;
+          yarnLock = ./yarn.lock;
+
+          # this runs after the packages are installed
+          pkgConfig.postInstall = "yarn build";
+
+          # for testing
+          yarnFlags = [
+            "--offline"
+            "--frozen-lockfile"
+            "--ignore-engines"
+            "--ignore-scripts"
+            "--verbose"
+          ];
+        };
+
+        # mkYarnPackage puts teh compelted files in a really nestled directory
+      in pkgs.stdenv.mkDerivation {
+        name = "squiggle-website";
+        src = website;
+        installPhase = ''
+          mkdir -p $out
+          cp -R $ src/libexec/squiggle-website/deps/squiggle-website/. $out
+          rm $out/bin/node_modules
+          cp -R $src/libexec/squiggle-website/node_modules/. $out/node_modules
+        '';
+      };
+
+    in {
 
       herculesCI = { ... }: {
         onPush.squiggle-lang = let
 
             # base mkYarnPackage config
-            lang = pkgs.mkYarnPackage rec {
+            lang = pkgs.mkYarnPackage {
               name = "squiggle-lang";
               buildInputs = [
                 nodejs pkgs.ninja
@@ -59,7 +95,7 @@
         onPush.squiggle-components = let
 
             # base mkYarnPackage config
-            components = pkgs.mkYarnPackage rec {
+            components = pkgs.mkYarnPackage {
               name = "squiggle-components";
               buildInputs = [
                 nodejs
@@ -93,44 +129,9 @@
             '';
           };
 
-        onPush.squiggle-website = let
+        onPush.squiggle-website = squiggle-website;
 
-            # base mkYarnPackage config
-            website = pkgs.mkYarnPackage rec {
-              name = "squiggle-website";
-              buildInputs = [
-                nodejs
-              ];
-              src = self;
-              packageJSON = ./packages/website/package.json;
-              yarnLock = ./yarn.lock;
-
-              # this runs after the packages are installed
-              pkgConfig.postInstall = "yarn build";
-
-              # for testing
-              yarnFlags = [
-                "--offline"
-                "--frozen-lockfile"
-                "--ignore-engines"
-                "--ignore-scripts"
-                "--verbose"
-              ];
-            };
-
-          # mkYarnPackage puts teh compelted files in a really nestled directory
-          in pkgs.stdenv.mkDerivation {
-            name = "squiggle-website";
-            src = website;
-            installPhase = ''
-              mkdir -p $out
-              cp -R $src/libexec/squiggle-website/deps/squiggle-website/. $out
-              rm $out/bin/node_modules
-              cp -R $src/libexec/squiggle-website/node_modules/. $out/node_modules
-            '';
-          };
-
-        };
-      }
-    );
+      };
+      defaultPackage.x86_64-linux = squiggle-website;
+    };
 }
