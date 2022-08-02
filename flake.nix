@@ -122,6 +122,7 @@
           in pkgs.stdenv.mkDerivation {
             name = "squiggle-components";
             src = components;
+            buildPhase = "yarn all";
             installPhase = ''
               mkdir -p $out
               cp -R $src/libexec/squiggle-components/deps/squiggle-components/. $out
