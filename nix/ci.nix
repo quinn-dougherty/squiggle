@@ -13,7 +13,7 @@ builtins.mapAttrs (k: _v:
       in pkgs.stdenv.mkDerivation {
         name = "squiggle-lang";
         src = ./../packages/squiggle-lang;
-        buildInputs = with pkgs; [ yarn patchelf python38 ];
+        buildInputs = with pkgs; [ yarn patchelf python2 ];
         buildPhase = ''
           mkdir -p ./node_modules
           ln -s ${nodeDependencies}/lib/node_modules ./node_modules
