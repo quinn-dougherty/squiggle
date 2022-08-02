@@ -15,6 +15,7 @@ builtins.mapAttrs (k: _v:
         src = ./../packages/squiggle-lang;
         buildInputs = with pkgs; [ yarn patchelf ];
         buildPhase = ''
+          mkdir -p ./node_modules
           ln -s ${nodeDependencies}/lib/node_modules ./node_modules
           export PATH="${nodeDependencies}/bin:$PATH"
 
@@ -43,6 +44,7 @@ builtins.mapAttrs (k: _v:
           src = ./../packages/components;
           buildInputs = [ pkgs.yarn ];
           buildPhase = ''
+            mkdir -p ./node_modules
             ln -s ${nodeDependencies}/lib/node_modules ./node_modules
             export PATH="${nodeDependencies}/bin:$PATH"
 
