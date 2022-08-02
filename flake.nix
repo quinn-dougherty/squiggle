@@ -12,7 +12,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, utils, flake-compat-ci, flake-compat, ... }: utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, utils, flake-compat-ci, flake-compat, ... }:
     let
       pkgs = import nixpkgs {
         inherit system;
@@ -21,41 +21,6 @@
 
       # set the node version here
       nodejs = pkgs.nodejs-16_x;
-
-      squiggle-website = let
-        # base mkYarnPackage config
-        website = pkgs.mkYarnPackage {
-          name = "squiggle-website";
-          buildInputs = [
-            nodejs
-          ];
-          src = ./.;
-          packageJSON = ./packages/website/package.json;
-          yarnLock = ./yarn.lock;
-
-          # this runs after the packages are installed
-          pkgConfig.postInstall = "yarn build";
-
-          # for testing
-          yarnFlags = [
-            "--offline"
-            "--frozen-lockfile"
-            "--ignore-engines"
-            "--ignore-scripts"
-            "--verbose"
-          ];
-        };
-        # mkYarnPackage puts teh compelted files in a really nestled directory
-        in pkgs.stdenv.mkDerivation {
-          name = "squiggle-website";
-          src = website;
-          installPhase = ''
-            mkdir -p $out
-            cp -R $ src/libexec/squiggle-website/deps/squiggle-website/. $out
-            rm $out/bin/node_modules
-            cp -R $src/libexec/squiggle-website/node_modules/. $out/node_modules
-          '';
-      };
 
     in rec {
 
@@ -137,17 +102,50 @@
             '';
           });
 
-          squiggle-website = pkgs.recurseIntoAttrs squiggle-website;
+          squiggle-website = pkgs.recurseIntoAttrs (let
+            # base mkYarnPackage config
+            website = pkgs.mkYarnPackage {
+              name = "squiggle-website";
+              buildInputs = [
+                nodejs
+              ];
+              src = ./.;
+              packageJSON = ./packages/website/package.json;
+              yarnLock = ./yarn.lock;
+
+              # this runs after the packages are installed
+              pkgConfig.postInstall = "yarn build";
+
+              # for testing
+              yarnFlags = [
+                "--offline"
+                "--frozen-lockfile"
+                "--ignore-engines"
+                "--ignore-scripts"
+                "--verbose"
+              ];
+            };
+            # mkYarnPackage puts teh compelted files in a really nestled directory
+          in pkgs.stdenv.mkDerivation {
+            name = "squiggle-website";
+            src = website;
+            installPhase = ''
+              mkdir -p $out
+              cp -R $ src/libexec/squiggle-website/deps/squiggle-website/. $out
+              rm $out/bin/node_modules
+              cp -R $src/libexec/squiggle-website/node_modules/. $out/node_modules
+            '';
+          });
         };
       };
-      defaultPackage = squiggle-website;
+      defaultPackage = herculesCI.onPush.squiggle-website;
       ciNix = flake-compat-ci.lib.recurseIntoFlakeWith {
         flake = self;
 
         # Optional. Systems for which to perform CI.
         # By default, every system attr in the flake will be built.
         # Example: [ "x86_64-darwin" "aarch64-linux" ];
-        systems = [ system ];
+        systems = [ "x86_64-linux" ];
       };
-    });
+    };
 }
