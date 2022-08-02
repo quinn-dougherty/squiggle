@@ -94,7 +94,7 @@
             '';
           };
 
-          squiggle-components = let
+          squiggle-components = pkgs.recurseIntoAttrs (let
 
             # base mkYarnPackage config
             components = pkgs.mkYarnPackage {
@@ -130,9 +130,9 @@
               rm $out/bin/node_modules
               cp -R $src/libexec/squiggle-components/node_modules/. $out/node_modules
             '';
-          };
+          });
 
-          squiggle-website = squiggle-website;
+          squiggle-website = pkgs.recurseIntoAttrs squiggle-website;
         };
       };
       # defaultPackage = squiggle-website;
