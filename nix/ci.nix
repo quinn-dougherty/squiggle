@@ -58,6 +58,24 @@ builtins.mapAttrs (k: _v:
             echo "'installing' components"
           '';
         };
+    website = let nodeDependencies = squiggleWebsite.nodeDependencies;
+        in pkgs.stdenv.mkDerivation {
+          name = "squiggle-website";
+          src = ./../packages/website;
+          buildInputs = [ pkgs.yarn ];
+          buildPhase = ''
+            mkdir -p ./node_modules
+            ln -s ${nodeDependencies}/lib/node_modules ./node_modules
+            export PATH="${nodeDependencies}/bin:$PATH"
+
+            yarn --offline build
+          '';
+          installPhase = ''
+            mkdir -p $out
+            cp -r build $out/
+            echo "'installing' website"
+          '';
+        };
   }
 ) {
   x86_64-linux = {};
