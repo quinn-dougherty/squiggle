@@ -10,5 +10,6 @@ in
 nodeDependencies // {
   rescript = nodeDependencies.rescript.override {
     buildInputs = [ pkgs.ninja ];
+    dontNpmInstall = true;
   };
 }
