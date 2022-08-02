@@ -60,7 +60,7 @@
       packages."${packageNameBase}-components" = let
 
           # base mkYarnPackage config
-          lang = pkgs.mkYarnPackage rec {
+          components = pkgs.mkYarnPackage rec {
             name = "${packageNameBase}-components";
             buildInputs = [
               nodejs pkgs.ninja
@@ -85,7 +85,7 @@
         # mkYarnPackage puts teh compelted files in a really nestled directory
         in pkgs.stdenv.mkDerivation {
           name = "${packageNameBase}-components";
-          src = lang;
+          src = components;
           installPhase = ''
             mkdir -p $out
             cp -R $src/libexec/${packageNameBase}-components/deps/${packageNameBase}-components/. $out
@@ -97,7 +97,7 @@
       packages."${packageNameBase}-website" = let
 
           # base mkYarnPackage config
-          lang = pkgs.mkYarnPackage rec {
+          website = pkgs.mkYarnPackage rec {
             name = "${packageNameBase}-website";
             buildInputs = [
               nodejs pkgs.ninja
@@ -107,7 +107,7 @@
             yarnLock = ./yarn.lock;
 
             # this runs after the packages are installed
-            pkgConfig.postInstall = "yarn all";
+            pkgConfig.postInstall = "yarn build";
 
             # for testing
             yarnFlags = [
@@ -122,7 +122,7 @@
         # mkYarnPackage puts teh compelted files in a really nestled directory
         in pkgs.stdenv.mkDerivation {
           name = "${packageNameBase}-website";
-          src = lang;
+          src = website;
           installPhase = ''
             mkdir -p $out
             cp -R $src/libexec/${packageNameBase}-website/deps/${packageNameBase}-website/. $out
