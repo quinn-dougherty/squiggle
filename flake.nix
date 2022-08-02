@@ -13,19 +13,17 @@
         overlays = [  ];
       };
 
-      packageNameBase = "squiggle";
-
       # set the node version here
       nodejs = pkgs.nodejs-16_x;
 
     in rec {
 
       herculesCI = { ... }: {
-        onPush."${packageNameBase}-lang" = let
+        onPush.squiggle-lang = let
 
             # base mkYarnPackage config
             lang = pkgs.mkYarnPackage rec {
-              name = "${packageNameBase}-lang";
+              name = "squiggle-lang";
               buildInputs = [
                 nodejs pkgs.ninja
               ];
@@ -48,23 +46,23 @@
 
           # mkYarnPackage puts teh compelted files in a really nestled directory
           in pkgs.stdenv.mkDerivation {
-            name = "${packageNameBase}-lang";
+            name = "squiggle-lang";
             src = lang;
             installPhase = ''
               mkdir -p $out
-              cp -R $src/libexec/${packageNameBase}-lang/deps/${packageNameBase}-lang/. $out
+              cp -R $src/libexec/squiggle-lang/deps/squiggle-lang/. $out
               rm $out/bin/node_modules
-              cp -R $src/libexec/${packageNameBase}-lang/node_modules/. $out/node_modules
+              cp -R $src/libexec/squiggle-lang/node_modules/. $out/node_modules
             '';
           };
 
-        onPush."${packageNameBase}-components" = let
+        onPush.squiggle-components = let
 
             # base mkYarnPackage config
             components = pkgs.mkYarnPackage rec {
-              name = "${packageNameBase}-components";
+              name = "squiggle-components";
               buildInputs = [
-                nodejs pkgs.ninja
+                nodejs
               ];
               src = self;
               packageJSON = ./packages/components/package.json;
@@ -85,23 +83,23 @@
 
           # mkYarnPackage puts teh compelted files in a really nestled directory
           in pkgs.stdenv.mkDerivation {
-            name = "${packageNameBase}-components";
+            name = "squiggle-components";
             src = components;
             installPhase = ''
               mkdir -p $out
-              cp -R $src/libexec/${packageNameBase}-components/deps/${packageNameBase}-components/. $out
+              cp -R $src/libexec/squiggle-components/deps/squiggle-components/. $out
               rm $out/bin/node_modules
-              cp -R $src/libexec/${packageNameBase}-components/node_modules/. $out/node_modules
+              cp -R $src/libexec/squiggle-components/node_modules/. $out/node_modules
             '';
           };
 
-        onPush."${packageNameBase}-website" = let
+        onPush.squiggle-website = let
 
             # base mkYarnPackage config
             website = pkgs.mkYarnPackage rec {
-              name = "${packageNameBase}-website";
+              name = "squiggle-website";
               buildInputs = [
-                nodejs pkgs.ninja
+                nodejs
               ];
               src = self;
               packageJSON = ./packages/website/package.json;
@@ -122,13 +120,13 @@
 
           # mkYarnPackage puts teh compelted files in a really nestled directory
           in pkgs.stdenv.mkDerivation {
-            name = "${packageNameBase}-website";
+            name = "squiggle-website";
             src = website;
             installPhase = ''
               mkdir -p $out
-              cp -R $src/libexec/${packageNameBase}-website/deps/${packageNameBase}-website/. $out
+              cp -R $src/libexec/squiggle-website/deps/squiggle-website/. $out
               rm $out/bin/node_modules
-              cp -R $src/libexec/${packageNameBase}-website/node_modules/. $out/node_modules
+              cp -R $src/libexec/squiggle-website/node_modules/. $out/node_modules
             '';
           };
 
