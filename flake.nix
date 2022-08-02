@@ -135,6 +135,6 @@
           squiggle-website = squiggle-website;
         };
       };
-      defaultPackage = squiggle-website;
+      # defaultPackage = squiggle-website;
     });
 }
