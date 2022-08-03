@@ -49,7 +49,8 @@
         src = squiggle-lang-yarnPackage + "/libexec/@quri/squiggle-lang/";
         buildInputs = commonBuildInputs;
         buildPhase = ''
-          yarn --offline --check-files --cwd deps/@quri/squiggle-lang prepack
+          yarn --offline --cwd deps/@quri/squiggle-lang build:peggy
+          yarn --offline --cwd deps/@quri/squiggle-lang build:typescript
         '';
         installPhase = ''
           mkdir -p $out
@@ -107,7 +108,6 @@
         yarnLock = ./yarn.lock;
         workspaceDependencies = [ squiggle-components-yarnPackage ];
 
-        # for testing
         yarnFlags = commonYarnFlags;
       };
       squiggle-website-lint = pkgs.stdenv.mkDerivation {
@@ -133,29 +133,32 @@
       };
     in rec {
 
-      herculesCI.onPush = {
-        squiggle-lang.outputs = {
-          squiggle-lang = squiggle-lang;
-          squiggle-lang-lint = squiggle-lang-lint;
-        };
-        squiggle-components = {
-          outputs = {
-            squiggle-components = squiggle-components;
-            squiggle-components-lint = squiggle-components-lint;
-          };
-          # extraInputs.lang-package = {};
-        };
-
-        squiggle-website = {
-          outputs = {
-            squiggle-website = squiggle-website;
-            squiggle-website-lint = squiggle-website-lint;
-          };
-          # extraInputs.components-package = {};
-        };
+#      herculesCI.onPush = {
+#        squiggle-lang.outputs = {
+#          squiggle-lang = squiggle-lang;
+#          squiggle-lang-lint = squiggle-lang-lint;
+#        };
+#        squiggle-components.outputs = {
+#          squiggle-components = squiggle-components;
+#          squiggle-components-lint = squiggle-components-lint;
+#        };
+#
+#        squiggle-website.outputs = {
+#          squiggle-website = squiggle-website;
+#          squiggle-website-lint = squiggle-website-lint;
+#        };
+#      };
+      checks."${system}" = {
+        lang-lint = squiggle-lang-lint;
+        components-lint = squiggle-components-lint;
+        website-lint = squiggle-website-lint;
       };
-      defaultPackage."${system}" =
-        herculesCI.onPush.squiggle-components.outputs.squiggle-components-lint;
+      packages."${system}" = {
+        default = squiggle-website;
+        lang = squiggle-lang;
+        components = squiggle-components;
+        docs-site = squiggle-website;
+      };
 
     };
 }
