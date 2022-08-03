@@ -1,6 +1,40 @@
 {
   "nodes": {
+    "hercules-ci-effects": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1655158531,
+        "narHash": "sha256-5LeaONqA6pgSNeA39gzu5XUipw3mXNZ04LUiy2TVImU=",
+        "owner": "hercules-ci",
+        "repo": "hercules-ci-effects",
+        "rev": "bda248e06dc44cbba9f4db350abbb10c3fe3b6fd",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "hercules-ci-effects",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
+      "locked": {
+        "lastModified": 1647297614,
+        "narHash": "sha256-ulGq3W5XsrBMU/u5k9d4oPy65pQTkunR4HKKtTq0RwY=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "73ad5f9e147c0d2a2061f1d4bd91e05078dc0b58",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
       "locked": {
         "lastModified": 1659219666,
         "narHash": "sha256-pzYr5fokQPHv7CmUXioOhhzDy/XyWOIXP4LZvv/T7Mk=",
@@ -17,7 +51,8 @@
     },
     "root": {
       "inputs": {
-        "nixpkgs": "nixpkgs"
+        "hercules-ci-effects": "hercules-ci-effects",
+        "nixpkgs": "nixpkgs_2"
       }
     }
   },
