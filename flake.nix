@@ -154,7 +154,7 @@
         website-lint = squiggle-website-lint;
       };
       packages."${system}" = {
-        default = squiggle-website;
+        # default = squiggle-website;
         lang = squiggle-lang;
         components = squiggle-components;
         docs-site = squiggle-website;
