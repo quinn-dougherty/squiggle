@@ -142,7 +142,7 @@
               squiggle-components = squiggle-components;
               squiggle-components-lint = squiggle-components-lint;
             };
-            extraInputs.lang-package = "";
+            extraInputs.lang-package = {};
           };
 
           squiggle-website = {
@@ -150,7 +150,7 @@
               squiggle-website = squiggle-website;
               squiggle-website-lint = squiggle-website-lint;
             };
-            extraInputs.components-package = "";
+            extraInputs.components-package = {};
           };
       };
       defaultPackage."${system}" = herculesCI.onPush.squiggle-components.outputs.squiggle-components-lint;
