@@ -19,6 +19,7 @@
       # set the node version here
       nodejs = pkgs.nodejs-16_x;
       buildInputsCommon = [ nodejs pkgs.yarn ];
+      pkgWhich = [ pkgs.which ];
       yarnFlagsCommon = [
         "--offline"
         "--frozen-lockfile"
@@ -37,7 +38,7 @@
         # buildInputs = with pkgs; [ which patchelf ocaml ninja ocamlPackages.merlin ];
         pkgConfig = {
           rescript = {
-            buildInputs = with pkgs; [ which gcc_multi ocaml ];
+            buildInputs = pkgWhich ++ [ pkgs.gcc_multi ];
             postInstall = ''
               echo "PATCHELF'ING RESCRIPT EXECUTABLES (INCL NINJA)"
               # Patching interpreter for linux/*.exe's
@@ -50,7 +51,7 @@
             '';
           };
           bisect_ppx = {
-            buildInputs = with pkgs; [ which ];
+            buildInputs = pkgWhich;
             postInstall = ''
               echo "PATCHELF'ING BISECT_PPX EXECUTABLE"
               THE_LD=$(patchelf --print-interpreter $(which mkdir))
@@ -58,11 +59,13 @@
             '';
           };
           gentype = {
-            buildInputs = with pkgs; [ which ];
+            buildInputs = pkgWhich ++ (with pkgs; [ glibc musl]);
+            preInstall = "export CC='musl-gcc -static'";
             postInstall = ''
               echo "PATCHELF'ING GENTYPE"
               THE_LD=$(patchelf --print-interpreter $(which mkdir))
-              patchelf --set-interpreter $THE_LD vendor-linux/gentype.exe
+              patchelf --set-interpreter $THE_LD gentype.exe && echo "- patched interpreter for gentype.exe"
+              patchelf --set-interpreter $THE_LD vendor-linux/gentype.exe && echo "- patched interpreter for vendor-linux/gentype.exe"
             '';
           };
         };
@@ -77,24 +80,54 @@
         buildPhase = "yarn lint:prettier";
         installPhase = "mkdir -p $out";
       };
-      squiggle-lang = pkgs.stdenv.mkDerivation {
-        name = "squiggle-lang";
+      squiggle-lang-rescript-build = pkgs.stdenv.mkDerivation {
+        name = "squiggle-lang-rescript-build";
         # `peggy` is in the `node_modules` that's adjacent to `deps`.
         src = squiggle-lang-yarnPackage + "/libexec/@quri/squiggle-lang/";
         buildInputs = buildInputsCommon;
         buildPhase = ''
-          yarn --offline --cwd deps/@quri/squiggle-lang build
+          yarn --offline --cwd deps/@quri/squiggle-lang build:rescript
         '';
         installPhase = ''
           mkdir -p $out
-          cp -r $src/libexec/@quri/squiggle-lang/deps/@quri/squiggle-lang/dist $out/dist
-          cp -r $src/libexec/@quri/squiggle-lang/node_modules/ $out/node_modules
+          cp -r $src/libexec/@quri/squiggle-lang/deps/@quri/squiggle-lang $out
+          cp -r $src/libexec/@quri/squiggle-lang/node_modules $out/node_modules
+        '';
+      };
+      squiggle-lang-typescript-build = pkgs.stdenv.mkDerivation {
+        name = "squiggle-lang-typescript-build";
+        src = squiggle-lang-rescript-build;
+        buildInputs = buildInputsCommon;
+        buildPhase = "yarn --offline build:typescript";
+        installPhase = ''
+          mkdir -p $out
+          cp -r . $out
+        '';
+      };
+      squiggle-lang-test = pkgs.stdenv.mkDerivation {
+        name = "squiggle-lang-test";
+        src = squiggle-lang-typescript-build;
+        buildInputs = buildInputsCommon;
+        buildPhase = "yarn --offline test";
+        installPhase = ''
+          mkdir -p $out
+          cp -r . $out
+        '';
+      };
+      squiggle-lang-bundle = pkgs.stdenv.mkDerivation {
+        name = "squiggle-lang-bundle";
+        src = squiggle-lang-test;
+        buildInputs = buildInputsCommon;
+        buildPhase = "yarn --offline bundle";
+        installPhase = ''
+          mkdir -p $out
+          cp -r dist $out/dist
         '';
         # passthru to spoof that this is still a yarn package even tho it's a subsequent derivation
         workspaceDependencies = [ ];
         pname = "@quri/squiggle-lang";
         packageJSON = ./packages/squiggle-lang/package.json;
-      };
+      }
 
       squiggle-components-yarnPackage = pkgs.mkYarnPackage {
         name = "squiggle-components_source";
@@ -102,7 +135,7 @@
         src = ./packages/components;
         packageJSON = ./packages/components/package.json;
         yarnLock = ./yarn.lock;
-        workspaceDependencies = [ squiggle-lang ];
+        workspaceDependencies = [ squiggle-lang-bundle ];
         yarnPreBuild = ''
           mkdir -p $src/node_modules/@quri/squiggle-lang
           cp -r ${squiggle-lang}/dist $src/node_modules/@quri/squiggle-lang
@@ -168,12 +201,13 @@
 
       checks."${system}" = {
         lang-lint = squiggle-lang-lint;
+        lang-test = squiggle-lang-test
         components-lint = squiggle-components-lint;
         docusaurus-lint = squiggle-website-lint;
       };
       packages."${system}" = {
         default = squiggle-website;
-        lang = squiggle-lang;
+        lang-bundle = squiggle-lang-bundle;
         components = squiggle-components;
         docs-site = squiggle-website;
       };
@@ -181,8 +215,11 @@
       # herc
       herculesCI.onPush = {
         squiggle-lang.outputs = {
-          squiggle-lang = packages."${system}".lang;
+          squiggle-lang-bundle = packages."${system}".lang-bundle;
           squiggle-lang-lint = checks."${system}".lang-lint;
+          squiggle-lang-test = checks."${system}".lang-test;
+          squiggle-lang-rescript-build = squiggle-lang-rescript-build;
+          squiggle-lang-typescript-build = squiggle-lang-typescript-build
         };
         squiggle-components.outputs = {
           squiggle-components = packages."${system}".components;
