@@ -90,18 +90,18 @@
         '';
         installPhase = ''
           mkdir -p $out
-          cp -r $src/libexec/@quri/squiggle-lang/deps/@quri/squiggle-lang $out
-          cp -r $src/libexec/@quri/squiggle-lang/node_modules $out/node_modules
+          cp -r $src/deps/@quri/squiggle-lang $out
+          cp -r $src/node_modules $out/node_modules
         '';
       };
       squiggle-lang-typescript-build = pkgs.stdenv.mkDerivation {
         name = "squiggle-lang-typescript-build";
         src = squiggle-lang-rescript-build;
         buildInputs = buildInputsCommon;
-        buildPhase = "yarn --offline build:typescript";
+        buildPhase = "yarn --offline --cwd=squiggle-lang build:typescript";
         installPhase = ''
           mkdir -p $out
-          cp -r . $out
+          cp -r squiggle-lang $out
         '';
       };
       squiggle-lang-test = pkgs.stdenv.mkDerivation {
@@ -214,14 +214,16 @@
 
       # herc
       herculesCI.onPush = {
-        squiggle-lang.outputs = {
-          squiggle-lang-bundle = packages."${system}".lang-bundle;
+        lang-checks.outputs = {
           squiggle-lang-lint = checks."${system}".lang-lint;
           squiggle-lang-test = checks."${system}".lang-test;
+        };
+        lang.outputs = {
           squiggle-lang-rescript-build = squiggle-lang-rescript-build;
           squiggle-lang-typescript-build = squiggle-lang-typescript-build;
+          squiggle-lang-bundle = packages."${system}".lang-bundle;
         };
-        squiggle-components.outputs = {
+        components.outputs = {
           squiggle-components = packages."${system}".components;
           squiggle-components-lint = checks."${system}".components-lint;
         };
