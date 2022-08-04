@@ -38,7 +38,7 @@
   },
   "ppx-flags": [
     [
-      "../../../node_modules/bisect_ppx/bin/linux/ppx",
+      "../../node_modules/bisect_ppx/bin/linux/ppx",
       "--exclude-files",
       ".*_test\\.res$$"
     ]

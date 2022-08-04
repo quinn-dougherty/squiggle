@@ -75,7 +75,7 @@
         src = lang-yarnPackage
           + "/libexec/@quri/squiggle-lang/deps/@quri/squiggle-lang";
         buildInputs = buildInputsCommon;
-        # Can only do prettier because `.lint.sh` script for rescript doesn't work,
+        # Can only do prettier because `./lint.sh` script for rescript doesn't work,
         # see https://stackoverflow.com/questions/18018359/all-newlines-are-removed-when-saving-cat-output-into-a-variable
         buildPhase = "yarn lint:prettier";
         installPhase = "mkdir -p $out";
@@ -86,6 +86,11 @@
         src = lang-yarnPackage + "/libexec/@quri/squiggle-lang/";
         buildInputs = buildInputsCommon;
         buildPhase = ''
+          # A bad hack to keep the `bsconfig` consistent
+          mkdir -p deps/node_modules
+          mv node_modules/bisect_ppx deps/node_modules
+
+          # build rescript
           yarn --offline --cwd deps/@quri/squiggle-lang build:rescript
         '';
         installPhase = ''
@@ -238,7 +243,6 @@
           squiggle-components = packages."${system}".components;
           squiggle-components-lint = checks."${system}".components-lint;
         };
-
         docs-site.outputs = {
           squiggle-website = packages."${system}".docs-site;
           docusaurus-lint = checks."${system}".docusaurus-lint;
