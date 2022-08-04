@@ -127,7 +127,7 @@
         workspaceDependencies = [ ];
         pname = "@quri/squiggle-lang";
         packageJSON = ./packages/squiggle-lang/package.json;
-      }
+      };
 
       squiggle-components-yarnPackage = pkgs.mkYarnPackage {
         name = "squiggle-components_source";
@@ -138,7 +138,7 @@
         workspaceDependencies = [ squiggle-lang-bundle ];
         yarnPreBuild = ''
           mkdir -p $src/node_modules/@quri/squiggle-lang
-          cp -r ${squiggle-lang}/dist $src/node_modules/@quri/squiggle-lang
+          cp -r ${squiggle-lang-bundle}/dist $src/node_modules/@quri/squiggle-lang
         '';
 
         yarnFlags = yarnFlagsCommon;
@@ -201,7 +201,7 @@
 
       checks."${system}" = {
         lang-lint = squiggle-lang-lint;
-        lang-test = squiggle-lang-test
+        lang-test = squiggle-lang-test;
         components-lint = squiggle-components-lint;
         docusaurus-lint = squiggle-website-lint;
       };
@@ -219,7 +219,7 @@
           squiggle-lang-lint = checks."${system}".lang-lint;
           squiggle-lang-test = checks."${system}".lang-test;
           squiggle-lang-rescript-build = squiggle-lang-rescript-build;
-          squiggle-lang-typescript-build = squiggle-lang-typescript-build
+          squiggle-lang-typescript-build = squiggle-lang-typescript-build;
         };
         squiggle-components.outputs = {
           squiggle-components = packages."${system}".components;
