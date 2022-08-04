@@ -28,7 +28,7 @@
       ];
 
       # packages in subrepos
-      squiggle-lang-yarnPackage = pkgs.mkYarnPackage {
+      lang-yarnPackage = pkgs.mkYarnPackage {
         name = "squiggle-lang_source";
         # extraNativeBuildInputs = [ pkgs.which ];
         src = ./packages/squiggle-lang;
@@ -70,9 +70,9 @@
           };
         };
       };
-      squiggle-lang-lint = pkgs.stdenv.mkDerivation {
+      lang-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-lang-lint";
-        src = squiggle-lang-yarnPackage
+        src = lang-yarnPackage
           + "/libexec/@quri/squiggle-lang/deps/@quri/squiggle-lang";
         buildInputs = buildInputsCommon;
         # Can only do prettier because `.lint.sh` script for rescript doesn't work,
@@ -80,10 +80,10 @@
         buildPhase = "yarn lint:prettier";
         installPhase = "mkdir -p $out";
       };
-      squiggle-lang-rescript-build = pkgs.stdenv.mkDerivation {
+      lang-rescript-build = pkgs.stdenv.mkDerivation {
         name = "squiggle-lang-rescript-build";
         # `peggy` is in the `node_modules` that's adjacent to `deps`.
-        src = squiggle-lang-yarnPackage + "/libexec/@quri/squiggle-lang/";
+        src = lang-yarnPackage + "/libexec/@quri/squiggle-lang/";
         buildInputs = buildInputsCommon;
         buildPhase = ''
           yarn --offline --cwd deps/@quri/squiggle-lang build:rescript
@@ -94,9 +94,9 @@
           cp -r $src/node_modules $out/node_modules
         '';
       };
-      squiggle-lang-typescript-build = pkgs.stdenv.mkDerivation {
+      lang-typescript-build = pkgs.stdenv.mkDerivation {
         name = "squiggle-lang-typescript-build";
-        src = squiggle-lang-rescript-build;
+        src = lang-rescript-build;
         buildInputs = buildInputsCommon;
         buildPhase = "yarn --offline --cwd=squiggle-lang build:typescript";
         installPhase = ''
@@ -104,9 +104,9 @@
           cp -r squiggle-lang $out
         '';
       };
-      squiggle-lang-test = pkgs.stdenv.mkDerivation {
+      lang-test = pkgs.stdenv.mkDerivation {
         name = "squiggle-lang-test";
-        src = squiggle-lang-typescript-build;
+        src = lang-typescript-build;
         buildInputs = buildInputsCommon;
         buildPhase = "yarn --offline test";
         installPhase = ''
@@ -114,9 +114,9 @@
           cp -r . $out
         '';
       };
-      squiggle-lang-bundle = pkgs.stdenv.mkDerivation {
+      lang-bundle = pkgs.stdenv.mkDerivation {
         name = "squiggle-lang-bundle";
-        src = squiggle-lang-test;
+        src = lang-test;
         buildInputs = buildInputsCommon;
         buildPhase = "yarn --offline bundle";
         installPhase = ''
@@ -129,87 +129,98 @@
         packageJSON = ./packages/squiggle-lang/package.json;
       };
 
-      squiggle-components-yarnPackage = pkgs.mkYarnPackage {
+      components-yarnPackage = pkgs.mkYarnPackage {
         name = "squiggle-components_source";
         buildInputs = buildInputsCommon;
         src = ./packages/components;
         packageJSON = ./packages/components/package.json;
         yarnLock = ./yarn.lock;
-        workspaceDependencies = [ squiggle-lang-bundle ];
+        yarnFlags = yarnFlagsCommon;
+        workspaceDependencies = [ lang-bundle ];
         yarnPreBuild = ''
           mkdir -p $src/node_modules/@quri/squiggle-lang
-          cp -r ${squiggle-lang-bundle}/dist $src/node_modules/@quri/squiggle-lang
+          cp -r ${lang-bundle}/dist $src/node_modules/@quri/squiggle-lang
+          cp -r ${lang-bundle}/dist/node_modules/* $src/node_modules
         '';
 
-        yarnFlags = yarnFlagsCommon;
       };
-      squiggle-components-lint = pkgs.stdenv.mkDerivation {
+      components-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-components-lint";
-        src = squiggle-components-yarnPackage
+        src = components-yarnPackage
           + "/libexec/@quri/squiggle-components/deps/@quri/squiggle-components";
-        buildPhase = "yarn lint";
+        buildPhase = "yarn --offline lint";
         installPhase = "mkdir -p $out";
       };
-      squiggle-components = pkgs.stdenv.mkDerivation {
-        name = "squiggle-components";
-        src = squiggle-components-yarnPackage
-          + "/libexec/@quri/squiggle-components/"; # deps/@quri/squiggle-components";
+      components-typescript-build = pkgs.stdenv.mkDerivation {
+        name = "squiggle-components-typescript-build";
+        src = components-yarnPackage
+          + "/libexec/@quri/squiggle-components/deps/@quri/squiggle-components";
         buildInputs = buildInputsCommon;
         buildPhase = ''
-          cd deps/@quri/squiggle-components
-          yarn all
+          yarn --offline build:cjs
         '';
         installPhase = ''
           mkdir -p $out
-          cp -R $src/libexec/squiggle-components/deps/squiggle-components $out
-          rm $out/bin/node_modules
-          cp -R $src/libexec/squiggle-components/node_modules/. $out/node_modules
+          cp -r $src $out
+          cp -r ../../../node_modules $out
         '';
       };
+      components-postcss-build = pkgs.stdenv.mkDerivation {
+        name = "squiggle-postcss-build";
+        src = components-typescript-build;
+        buildInputs = buildInputsCommon;
+        buildPhase = "yarn --offline build:css";
+        installPhase = ''
+          mkdir -p $out
+          cp -r $src $out
+        '';
+        # passthru to spoof that this is still a yarn package even tho it's a subsequent derivation
+        workspaceDependencies = [ ];
+        pname = "@quri/squiggle-components";
+        packageJSON = ./packages/components/package.json;
+      };
 
-      squiggle-website-yarnPackage = pkgs.mkYarnPackage {
+      website-yarnPackage = pkgs.mkYarnPackage {
         name = "squiggle-website_source";
         src = ./packages/website;
         packageJSON = ./packages/website/package.json;
         yarnLock = ./yarn.lock;
-        workspaceDependencies = [ squiggle-components-yarnPackage ];
-
         yarnFlags = yarnFlagsCommon;
+        workspaceDependencies = [ components-postcss-build ];
+
       };
-      squiggle-website-lint = pkgs.stdenv.mkDerivation {
+      website-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-website-lint";
         buildInputs = buildInputsCommon;
-        src = squiggle-website-yarnPackage
+        src = website-yarnPackage
           + "/libexec/squiggle-website/deps/squiggle-website";
-        buildPhase = "yarn lint";
+        buildPhase = "yarn --offline lint";
         installPhase = "mkdir -p $out";
       };
-      squiggle-website = pkgs.stdenv.mkDerivation {
+      website = pkgs.stdenv.mkDerivation {
         name = "squiggle-website";
         buildInputs = buildInputsCommon;
-        src = squiggle-website-yarnPackage
+        src = website-yarnPackage
           + "/libexec/squiggle-website/deps/squiggle-website";
-        buildPhase = "yarn build";
+        buildPhase = "yarn --offline build";
         installPhase = ''
           mkdir -p $out
-          cp -R $ src/libexec/squiggle-website/deps/squiggle-website/build $out
-          rm $out/bin/node_modules
-          cp -R $src/libexec/squiggle-website/node_modules/. $out/node_modules
+          cp -r $src/build $out
         '';
       };
     in rec {
 
       checks."${system}" = {
-        lang-lint = squiggle-lang-lint;
-        lang-test = squiggle-lang-test;
-        components-lint = squiggle-components-lint;
-        docusaurus-lint = squiggle-website-lint;
+        lang-lint = lang-lint;
+        lang-test = lang-test;
+        components-lint = components-lint;
+        docusaurus-lint = website-lint;
       };
       packages."${system}" = {
-        default = squiggle-website;
-        lang-bundle = squiggle-lang-bundle;
-        components = squiggle-components;
-        docs-site = squiggle-website;
+        default = website;
+        lang-bundle = lang-bundle;
+        components = components-typescript-build;
+        docs-site = website;
       };
 
       # herc
@@ -219,8 +230,8 @@
           squiggle-lang-test = checks."${system}".lang-test;
         };
         lang.outputs = {
-          squiggle-lang-rescript-build = squiggle-lang-rescript-build;
-          squiggle-lang-typescript-build = squiggle-lang-typescript-build;
+          squiggle-lang-rescript-build = lang-rescript-build;
+          squiggle-lang-typescript-build = lang-typescript-build;
           squiggle-lang-bundle = packages."${system}".lang-bundle;
         };
         components.outputs = {
