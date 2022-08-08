@@ -24,13 +24,12 @@
         "--offline"
         "--frozen-lockfile"
         # "--verbose"
-        "--production=false"
+        # "--production=false"
       ];
 
       # packages in subrepos
       lang-yarnPackage = pkgs.mkYarnPackage {
         name = "squiggle-lang_source";
-        # extraNativeBuildInputs = [ pkgs.which ];
         src = ./packages/squiggle-lang;
         packageJSON = ./packages/squiggle-lang/package.json;
         yarnLock = ./yarn.lock;
@@ -63,18 +62,18 @@
             postInstall = ''
               echo "PATCHELF'ING GENTYPE"
               THE_LD=$(patchelf --print-interpreter $(which mkdir))
-              # patchelf --set-interpreter $THE_LD gentype.exe && echo "- patched interpreter for gentype.exe"
+              patchelf --set-interpreter $THE_LD gentype.exe && echo "- patched interpreter for gentype.exe"
               patchelf --set-interpreter $THE_LD vendor-linux/gentype.exe && echo "- patched interpreter for vendor-linux/gentype.exe"
             '';
           };
         };
-       # yarnPostBuild = ''
-       #   echo "MORE PATCHELF'ING GENTYPE"
-       #   THE_LD=$(patchelf --print-interpreter $(which mkdir))
-       #   ls yarn_home/.cache/yarn/v6
-       #   exit 1
-       #   patchelf --set-interpreter $THE_LD ./.bin/gentype && echo "- patched interpreter for .bin/gentype"
-       # '';
+     #  yarnPostBuild = ''
+     #    echo "PATCHELF'ING GENTYPE AGAIN"
+     #    THE_LD=$(patchelf --print-interpreter $(which mkdir))
+     #    # patchelf --set-interpreter $THE_LD $out/node_modules/gentype/gentype.exe && echo "- patched interpreter for gentype.exe"
+     #    patchelf --set-interpreter $THE_LD $out/node_modules/gentype/vendor-linux/gentype.exe && echo "- patched interpreter for vendor-linux/gentype.exe"
+     #    # patchelf --set-interpreter $THE_LD $out/node_modules/.bin/gentype && echo "- patched interpreter for .bin/gentype"
+     #  '';
       };
       lang-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-lang-lint";
@@ -83,18 +82,27 @@
         buildInputs = buildInputsCommon;
         # Can only do prettier because `./lint.sh` script for rescript doesn't work,
         # see https://stackoverflow.com/questions/18018359/all-newlines-are-removed-when-saving-cat-output-into-a-variable
-        buildPhase = "yarn lint:prettier";
+        buildPhase = ''
+          yarn lint:prettier
+          yarn lint:rescript
+        '';
         installPhase = "mkdir -p $out";
       };
       lang-rescript-build = pkgs.stdenv.mkDerivation {
         name = "squiggle-lang-rescript-build";
         # `peggy` is in the `node_modules` that's adjacent to `deps`.
         src = lang-yarnPackage + "/libexec/@quri/squiggle-lang/";
-        buildInputs = buildInputsCommon;
+        buildInputs = buildInputsCommon ++ pkgWhich;
         buildPhase = ''
           # A bad hack to keep the `bsconfig` consistent
           mkdir -p deps/node_modules
           mv node_modules/bisect_ppx deps/node_modules
+
+          echo "PATCHELF'ING GENTYPE AGAIN"
+          THE_LD=$(patchelf --print-interpreter $(which mkdir))
+          patchelf --set-interpreter $THE_LD node_modules/gentype/gentype.exe && echo "- patched interpreter for gentype.exe"
+          patchelf --set-interpreter $THE_LD node_modules/gentype/vendor-linux/gentype.exe && echo "- patched interpreter for vendor-linux/gentype.exe"
+          patchelf --set-interpreter $THE_LD node_modules/.bin/gentype && echo "- patched interpreter for .bin/gentype"
 
           # build rescript
           yarn --offline --cwd deps/@quri/squiggle-lang build:rescript
