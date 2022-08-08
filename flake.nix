@@ -3,8 +3,11 @@
   # Derived from https://gitlab.com/Silvers_Gw2/Stats_Frontend/-/blob/cc5d783abd54e95363410592c390ca6925462262/flake.nix
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-unstable";
-    hercules-ci-effects.url = "github:hercules-ci/hercules-ci-effects";
+    nixpkgs.url = "nixpkgs/nixos-21.11";
+    hercules-ci-effects = {
+      url = "github:hercules-ci/hercules-ci-effects";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, hercules-ci-effects, ... }:
@@ -17,14 +20,14 @@
       };
 
       # set the node version here
-      nodejs = pkgs.nodejs-16_x;
+      nodejs = pkgs.nodejs-14_x;
       buildInputsCommon = [ nodejs pkgs.yarn ];
       pkgWhich = [ pkgs.which ];
       yarnFlagsCommon = [
         "--offline"
         "--frozen-lockfile"
         # "--verbose"
-        # "--production=false"
+        "--production=false"
       ];
 
       # packages in subrepos
