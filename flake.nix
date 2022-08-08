@@ -18,7 +18,7 @@
 
       # set the node version here
       nodejs = pkgs.nodejs-16_x;
-      buildInputsCommon = [ nodejs pkgs.yarn ];
+      buildInputsCommon = [ nodejs pkgs.yarn pkgs.bs-platform ];
       pkgWhich = [ pkgs.which ];
       yarnFlagsCommon = [
         "--offline"
@@ -35,7 +35,6 @@
         packageJSON = ./packages/squiggle-lang/package.json;
         yarnLock = ./yarn.lock;
         yarnFlags = yarnFlagsCommon;
-        # buildInputs = with pkgs; [ which patchelf ocaml ninja ocamlPackages.merlin ];
         pkgConfig = {
           rescript = {
             buildInputs = pkgWhich ++ [ pkgs.gcc_multi ];
@@ -59,16 +58,23 @@
             '';
           };
           gentype = {
-            buildInputs = pkgWhich ++ (with pkgs; [ glibc musl]);
-            preInstall = "export CC='musl-gcc -static'";
+            buildInputs = pkgWhich ++ (with pkgs; [ glibc ]);
+            # preInstall = "export CC='musl-gcc -static'";
             postInstall = ''
               echo "PATCHELF'ING GENTYPE"
               THE_LD=$(patchelf --print-interpreter $(which mkdir))
-              patchelf --set-interpreter $THE_LD gentype.exe && echo "- patched interpreter for gentype.exe"
+              # patchelf --set-interpreter $THE_LD gentype.exe && echo "- patched interpreter for gentype.exe"
               patchelf --set-interpreter $THE_LD vendor-linux/gentype.exe && echo "- patched interpreter for vendor-linux/gentype.exe"
             '';
           };
         };
+       # yarnPostBuild = ''
+       #   echo "MORE PATCHELF'ING GENTYPE"
+       #   THE_LD=$(patchelf --print-interpreter $(which mkdir))
+       #   ls yarn_home/.cache/yarn/v6
+       #   exit 1
+       #   patchelf --set-interpreter $THE_LD ./.bin/gentype && echo "- patched interpreter for .bin/gentype"
+       # '';
       };
       lang-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-lang-lint";
