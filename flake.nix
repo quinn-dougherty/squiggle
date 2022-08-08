@@ -108,7 +108,7 @@
           patchelf --set-interpreter $THE_LD node_modules/.bin/gentype && echo "- patched interpreter for .bin/gentype"
 
           # build rescript
-          yarn --offline --cwd deps/@quri/squiggle-lang build:rescript
+          yarn --offline --cwd deps/@quri/squiggle-lang production=false build:rescript
         '';
         installPhase = ''
           mkdir -p $out
