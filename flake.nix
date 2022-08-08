@@ -18,7 +18,7 @@
 
       # set the node version here
       nodejs = pkgs.nodejs-16_x;
-      buildInputsCommon = [ nodejs pkgs.yarn pkgs.bs-platform ];
+      buildInputsCommon = [ nodejs pkgs.yarn ];
       pkgWhich = [ pkgs.which ];
       yarnFlagsCommon = [
         "--offline"
