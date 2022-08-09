@@ -1,5 +1,25 @@
 {
   "nodes": {
+    "gentype": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1660002716,
+        "narHash": "sha256-Ig7Dt7d33nNCNlqRGc45uEJTXLRmpCeHrYNOd1AdObc=",
+        "owner": "quinn-dougherty",
+        "repo": "genType",
+        "rev": "c7291db6465ac62800a49bacbe94ce4eb4abcbe0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "quinn-dougherty",
+        "repo": "genType",
+        "type": "github"
+      }
+    },
     "hercules-ci-effects": {
       "inputs": {
         "nixpkgs": [
@@ -22,21 +42,22 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1659446231,
-        "narHash": "sha256-hekabNdTdgR/iLsgce5TGWmfIDZ86qjPhxDg/8TlzhE=",
+        "lastModified": 1659889440,
+        "narHash": "sha256-O8+FsHZzQIqjQjuh+VXbJtGrpPswm5ta2Z/eo72Lz2U=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "eabc38219184cc3e04a974fe31857d8e0eac098d",
+        "rev": "4bdf4169ad2896236895ca607a843f30c9680345",
         "type": "github"
       },
       "original": {
         "id": "nixpkgs",
-        "ref": "nixos-21.11",
+        "ref": "nixos-unstable",
         "type": "indirect"
       }
     },
     "root": {
       "inputs": {
+        "gentype": "gentype",
         "hercules-ci-effects": "hercules-ci-effects",
         "nixpkgs": "nixpkgs"
       }

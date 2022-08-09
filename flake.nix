@@ -3,31 +3,39 @@
   # Derived from https://gitlab.com/Silvers_Gw2/Stats_Frontend/-/blob/cc5d783abd54e95363410592c390ca6925462262/flake.nix
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-21.11";
+    nixpkgs.url = "nixpkgs/nixos-unstable";
+    gentype = {
+      url = "github:quinn-dougherty/genType";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     hercules-ci-effects = {
       url = "github:hercules-ci/hercules-ci-effects";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, hercules-ci-effects, ... }:
+  outputs = { self, nixpkgs, gentype, hercules-ci-effects, ... }:
     let
       # globals
       system = "x86_64-linux";
       pkgs = import nixpkgs {
         system = system;
-        overlays = [ hercules-ci-effects.overlay ];
+        overlays = [
+          hercules-ci-effects.overlay
+          (final: prev: {
+            # set the node version here
+            nodejs = prev.nodejs-16_x;
+            # The override is the only way to get it into mkYarnModules
+          })
+        ];
       };
-
-      # set the node version here
-      nodejs = pkgs.nodejs-14_x;
-      buildInputsCommon = [ nodejs pkgs.yarn ];
+      buildInputsCommon = with pkgs; [ nodejs yarn ];
       pkgWhich = [ pkgs.which ];
       yarnFlagsCommon = [
         "--offline"
         "--frozen-lockfile"
         # "--verbose"
-        "--production=false"
+        # "--production=false"
       ];
 
       # packages in subrepos
@@ -52,31 +60,25 @@
             '';
           };
           bisect_ppx = {
-            buildInputs = pkgWhich;
+            buildInputs = pkgWhich; #  ++ (with pkgs; [ ocaml nodePackages.esy ocamlPackages.bisect_ppx ]);
             postInstall = ''
               echo "PATCHELF'ING BISECT_PPX EXECUTABLE"
               THE_LD=$(patchelf --print-interpreter $(which mkdir))
               patchelf --set-interpreter $THE_LD bin/linux/ppx
+              patchelf --set-interpreter $THE_LD bin/linux/bisect-ppx-report
             '';
           };
           gentype = {
-            buildInputs = pkgWhich ++ (with pkgs; [ glibc ]);
-            # preInstall = "export CC='musl-gcc -static'";
             postInstall = ''
-              echo "PATCHELF'ING GENTYPE"
-              THE_LD=$(patchelf --print-interpreter $(which mkdir))
-              patchelf --set-interpreter $THE_LD gentype.exe && echo "- patched interpreter for gentype.exe"
-              patchelf --set-interpreter $THE_LD vendor-linux/gentype.exe && echo "- patched interpreter for vendor-linux/gentype.exe"
+              # echo "PATCHELF'ING GENTYPE"
+              # THE_LD=$(patchelf --print-interpreter $(which mkdir))
+              # # patchelf --set-interpreter $THE_LD gentype.exe && echo "- patched interpreter for gentype.exe"
+              # patchelf --set-interpreter $THE_LD vendor-linux/gentype.exe && echo "- patched interpreter for vendor-linux/gentype.exe"
+              mv gentype.exe ELFLESS-gentype.exe
+              cp ${gentype.outputs.defaultPackage."${system}"}/GenType.exe gentype.exe
             '';
           };
         };
-     #  yarnPostBuild = ''
-     #    echo "PATCHELF'ING GENTYPE AGAIN"
-     #    THE_LD=$(patchelf --print-interpreter $(which mkdir))
-     #    # patchelf --set-interpreter $THE_LD $out/node_modules/gentype/gentype.exe && echo "- patched interpreter for gentype.exe"
-     #    patchelf --set-interpreter $THE_LD $out/node_modules/gentype/vendor-linux/gentype.exe && echo "- patched interpreter for vendor-linux/gentype.exe"
-     #    # patchelf --set-interpreter $THE_LD $out/node_modules/.bin/gentype && echo "- patched interpreter for .bin/gentype"
-     #  '';
       };
       lang-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-lang-lint";
@@ -91,39 +93,53 @@
         '';
         installPhase = "mkdir -p $out";
       };
-      lang-rescript-build = pkgs.stdenv.mkDerivation {
-        name = "squiggle-lang-rescript-build";
+      lang-peggy-build = pkgs.stdenv.mkDerivation {
+        name = "squiggle-lang-peggy-build";
         # `peggy` is in the `node_modules` that's adjacent to `deps`.
         src = lang-yarnPackage + "/libexec/@quri/squiggle-lang/";
-        buildInputs = buildInputsCommon ++ pkgWhich;
+        buildInputs = buildInputsCommon;
         buildPhase = ''
           # A bad hack to keep the `bsconfig` consistent
           mkdir -p deps/node_modules
           mv node_modules/bisect_ppx deps/node_modules
 
-          echo "PATCHELF'ING GENTYPE AGAIN"
-          THE_LD=$(patchelf --print-interpreter $(which mkdir))
-          patchelf --set-interpreter $THE_LD node_modules/gentype/gentype.exe && echo "- patched interpreter for gentype.exe"
-          patchelf --set-interpreter $THE_LD node_modules/gentype/vendor-linux/gentype.exe && echo "- patched interpreter for vendor-linux/gentype.exe"
-          patchelf --set-interpreter $THE_LD node_modules/.bin/gentype && echo "- patched interpreter for .bin/gentype"
-
           # build rescript
-          yarn --offline --cwd deps/@quri/squiggle-lang production=false build:rescript
+          yarn --offline --cwd deps/@quri/squiggle-lang build:peggy
         '';
         installPhase = ''
           mkdir -p $out
-          cp -r $src/deps/@quri/squiggle-lang $out
-          cp -r $src/node_modules $out/node_modules
+          mkdir -p %out/node_modules
+          cp -r $src/deps/@quri $out
+          cp -r $src/node_modules $out
+        '';
+      };
+      lang-rescript-build = pkgs.stdenv.mkDerivation {
+        name = "squiggle-lang-rescript-build";
+        # `peggy` is in the `node_modules` that's adjacent to `deps`.
+        src = lang-peggy-build;
+        buildInputs = buildInputsCommon;
+        buildPhase = ''
+          # build rescript
+          pushd @quri/squiggle-lang
+          yarn --offline build:rescript
+          popd
+        '';
+        installPhase = ''
+          mkdir -p $out
+          cp -r . $out
         '';
       };
       lang-typescript-build = pkgs.stdenv.mkDerivation {
         name = "squiggle-lang-typescript-build";
         src = lang-rescript-build;
         buildInputs = buildInputsCommon;
-        buildPhase = "yarn --offline --cwd=squiggle-lang build:typescript";
+        buildPhase = ''
+          cd @quri/squiggle-lang
+          yarn --offline build:typescript
+        '';
         installPhase = ''
           mkdir -p $out
-          cp -r squiggle-lang $out
+          cp -r . $out
         '';
       };
       lang-test = pkgs.stdenv.mkDerivation {
@@ -252,6 +268,7 @@
           squiggle-lang-test = checks."${system}".lang-test;
         };
         lang.outputs = {
+          squiggle-lang-peggy-build = lang-peggy-build;
           squiggle-lang-rescript-build = lang-rescript-build;
           squiggle-lang-typescript-build = lang-typescript-build;
           squiggle-lang-bundle = packages."${system}".lang-bundle;
