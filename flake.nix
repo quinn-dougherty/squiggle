@@ -270,7 +270,7 @@
         components.outputs = {
           squiggle-components = packages.${system}.components;
           squiggle-components-lint = checks.${system}.components-lint;
-          squiggle-scomponents-storybook = packages.${system}.storybook
+          squiggle-components-storybook = packages.${system}.storybook;
         };
         docs-site.outputs = {
           squiggle-website = packages.${system}.docs-site;
