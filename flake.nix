@@ -150,7 +150,6 @@
         '';
       };
 
-      # I'll have to pass along the cache between jobs. manually.
       components-yarnPackage = pkgs.mkYarnPackage {
         name = "squiggle-components_source";
         buildInputs = buildInputsCommon;
@@ -163,18 +162,23 @@
       components-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-components-lint";
         src = components-yarnPackage
-          + "/libexec/@quri/squiggle-components/deps/@quri/squiggle-components";
+          + "/libexec/@quri/squiggle-components";
         buildInputs = buildInputsCommon;
-        buildPhase = "yarn --offline lint";
+        buildPhase = ''
+          pushd deps/@quri/squiggle-components
+          yarn --offline lint
+          popd
+        '';
         installPhase = "mkdir -p $out";
       };
       components-package-build = pkgs.stdenv.mkDerivation {
         name = "squiggle-components-package-build";
-        src = components-yarnPackage
-          + "/libexec/@quri/squiggle-components/deps/@quri/squiggle-components";
+        src = components-yarnPackage + "/libexec/@quri/squiggle-components";
         buildInputs = buildInputsCommon;
         buildPhase = ''
+          pushd deps/@quri/squiggle-components
           yarn --offline build:cjs && yarn --offline build:css
+          popd
         '';
         installPhase = ''
           mkdir -p $out
@@ -223,10 +227,10 @@
         lang-bundle = lang-bundle;
         components = components-package-build;
         docs-site = website;
-        tmp = {
-          lang-build = lang-build;
-          components-yarnPkg = components-yarnPackage;
-        };
+        #tmp = {
+        #  lang-build = lang-build;
+        #  components-yarnPkg = components-yarnPackage;
+        # };
       };
 
       # herc
