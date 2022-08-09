@@ -186,7 +186,7 @@
 
           # annoying hack because permissions on transitive dependencies later on
           mv deps/@quri/squiggle-components/node_modules deps/@quri/squiggle-components/NODE_MODULES
-          mv deps/node_modules deps/@quri/squiggle-components
+          mv node_modules deps/@quri/squiggle-components
 
           # patching .gitignore so flake keeps build artefacts
           sed -i /dist/d deps/@quri/squiggle-components/.gitignore
@@ -199,15 +199,14 @@
         src = ./packages/website;
         packageJSON = ./packages/website/package.json;
         yarnLock = ./yarn.lock;
-        packageResolutions."@quri/squiggle-components" = components-package-build;
         packageResolutions."@quri/squiggle-lang" = lang-build;
+        packageResolutions."@quri/squiggle-components" = components-package-build;
       };
       website-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-website-lint";
-        buildInputs = buildInputsCommon;
+        buildInputs = buildInputsCommon ++ prettierCommon;
         src = website-yarnPackage
           + "/libexec/squiggle-website/deps/squiggle-website";
-        extraBuildInputs = prettierCommon;
         buildPhase = "yarn lint";
         installPhase = "mkdir -p $out";
       };
