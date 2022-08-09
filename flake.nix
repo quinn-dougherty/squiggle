@@ -156,11 +156,12 @@
       };
 
       componentsPackageJson =
-        pkgs.writeText "packages/components/patched-package.json"
-        (builtins.toJSON
-          ((pkgs.lib.attrsets.setAttrByPath [ "dependencies" "react-dom" ]
-            "^18")
-            // (pkgs.lib.importJSON ./packages/components/package.json)));
+        let
+          raw = pkgs.lib.importJSON ./packages/components/package.json;
+          modified = pkgs.lib.recursiveUpdate raw { dependencies.react-dom = "^18.2.0"; };
+          packageJsonString = builtins.toJSON modified;
+        in
+          pkgs.writeText "packages/components/patched-package.json" packageJsonString;
       components-yarnPackage = pkgs.mkYarnPackage {
         name = "squiggle-components_source";
         buildInputs = buildInputsCommon;
