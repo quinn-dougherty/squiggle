@@ -34,8 +34,6 @@
       yarnFlagsCommon = [
         "--offline"
         "--frozen-lockfile"
-        # "--verbose"
-        # "--production=false"
       ];
 
       # packages in subrepos
@@ -97,7 +95,6 @@
         src = lang-yarnPackage + "/libexec/@quri/squiggle-lang/";
         buildInputs = buildInputsCommon;
         buildPhase = ''
-          # build parser
           mv node_modules deps
           pushd deps/@quri/squiggle-lang
           yarn --offline build:peggy
@@ -108,15 +105,18 @@
         installPhase = ''
           mkdir -p $out
           mkdir -p %out/node_modules
-          sed -i /Reducer_Peggy_GeneratedParser.js/d deps/@quri/squiggle-lang/.gitignore
-          sed -i /\*.bs.js/d deps/@quri/squiggle-lang/.gitignore
-          sed -i /\*.gen.ts/d deps/@quri/squiggle-lang/.gitignore
-          sed -i /\*.gen.tsx/d deps/@quri/squiggle-lang/.gitignore
-          sed -i /\*.gen.js/d deps/@quri/squiggle-lang/.gitignore
-          sed -i /helpers.js/d deps/@quri/squiggle-lang/.gitignore
+
+          cp deps/@quri/squiggle-lang/.gitignore GITIGNORE
+          sed -i /Reducer_Peggy_GeneratedParser.js/d GITIGNORE
+          sed -i /\*.bs.js/d GITIGNORE
+          sed -i /\*.gen.ts/d GITIGNORE
+          sed -i /\*.gen.tsx/d GITIGNORE
+          sed -i /\*.gen.js/d GITIGNORE
+          sed -i /helpers.js/d GITIGNORE
 
           cp -r $src/deps/. $out
           cp -r $src/node_modules $out
+          cp GITIGNORE $out/.gitignore
         '';
       };
       lang-test = pkgs.stdenv.mkDerivation {
@@ -124,9 +124,9 @@
         src = lang-build;
         buildInputs = buildInputsCommon;
         buildPhase = ''
-          pushd @quri/squiggle-lang
-          yarn --offline test
+          pushd $src/@quri/squiggle-lang
           cat .gitignore
+          yarn --offline test
           popd
         '';
         installPhase = ''
