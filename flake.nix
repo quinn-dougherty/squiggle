@@ -214,6 +214,7 @@
         yarnLock = ./yarn.lock;
         packageResolutions."@quri/squiggle-lang" = lang-build;
         packageResolutions."@quri/squiggle-components" = components-package-build;
+        workspaceDependencies = [ lang-yarnPackage components-yarnPackage ];
       };
       website-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-website-lint";
