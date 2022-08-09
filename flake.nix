@@ -212,14 +212,24 @@
 
           # patching .gitignore so flake keeps build artefacts
           sed -i /\build/d .gitignore
-          sed -i /storybook-tatic/d .gitignore
+          sed -i /storybook-static/d .gitignore
         '';
       };
 
+      websitePackageJson =
+        let
+          raw = pkgs.lib.importJSON ./packages/website/package.json;
+          modified = pkgs.lib.recursiveUpdate raw {
+            dependencies.postcss-import = "^14.1.0";
+            dependencies.tailwindcss = "^3.1.8";
+          };
+          packageJsonString = builtins.toJSON modified;
+        in
+          pkgs.writeText "packages/website/patched-package.json" packageJsonString;
       website-yarnPackage = pkgs.mkYarnPackage {
         name = "squiggle-website_source";
         src = ./packages/website;
-        packageJSON = ./packages/website/package.json;
+        packageJSON = websitePackageJson;
         yarnLock = ./yarn.lock;
         packageResolutions."@quri/squiggle-lang" = lang-build;
         packageResolutions."@quri/squiggle-components" =
