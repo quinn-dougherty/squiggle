@@ -132,8 +132,8 @@
         '';
         installPhase = ''
           mkdir -p $out
-          cp -r @quri/squiggle-lang/dist $out
-          cp @quri/squiggle-lang/*.json $out/dist
+          cp -r dist $out
+          cp *.json $out/dist
         '';
       };
 
@@ -144,13 +144,14 @@
         src = ./packages/components;
         packageJSON = ./packages/components/package.json;
         yarnLock = ./yarn.lock;
-        packageResolutions."@quri/squiggle-lang" = lang-build; #  + "/@quri/squiggle-lang";
+        packageResolutions."@quri/squiggle-lang" = lang-build;
         workspaceDependencies = [ lang-yarnPackage ];
       };
       components-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-components-lint";
         src = components-yarnPackage
           + "/libexec/@quri/squiggle-components/deps/@quri/squiggle-components";
+        buildInputs = buildInputsCommon;
         buildPhase = "yarn --offline lint";
         installPhase = "mkdir -p $out";
       };
