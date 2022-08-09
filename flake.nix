@@ -227,8 +227,12 @@
         name = "squiggle-website";
         buildInputs = buildInputsCommon;
         src = website-yarnPackage
-          + "/libexec/squiggle-website/deps/squiggle-website";
-        buildPhase = "yarn --offline build";
+          + "/libexec/squiggle-website";
+        buildPhase = ''
+          pushd deps/squiggle-website
+          yarn --offline build
+          popd
+        '';
         installPhase = ''
           mkdir -p $out
           cp -r $src/build $out
@@ -246,6 +250,7 @@
         default = website;
         lang-bundle = lang-bundle;
         components = components-package-build;
+        storybook = components-site-build;
         docs-site = website;
        # tmp = {
        #   lang-build = lang-build;
@@ -265,6 +270,7 @@
         components.outputs = {
           squiggle-components = packages.${system}.components;
           squiggle-components-lint = checks.${system}.components-lint;
+          squiggle-scomponents-storybook = packages.${system}.storybook
         };
         docs-site.outputs = {
           squiggle-website = packages.${system}.docs-site;
