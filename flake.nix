@@ -32,6 +32,14 @@
       buildInputsCommon = with pkgs; [ nodejs yarn ];
       pkgWhich = [ pkgs.which ];
 
+      # To get prettier into later source trees
+      monorepo-yarnPackage = pkgs.mkYarnPackage {
+        name = "squiggle-monorepo_source";
+        src = ./.;
+        packageJSON = ./package.json;
+        yarnLock = ./yarn.lock;
+      };
+
       # packages in subrepos
       lang-yarnPackage = pkgs.mkYarnPackage {
         name = "squiggle-lang_source";
@@ -108,7 +116,7 @@
           # mkdir -p $out/node_modules
           mv deps/@quri/squiggle-lang/GITIGNORE deps/@quri/squiggle-lang/.gitignore
 
-          # annoying hack because permissions on transitive dependencies
+          # annoying hack because permissions on transitive dependencies later on
           mv deps/@quri/squiggle-lang/node_modules deps/@quri/squiggle-lang/NODE_MODULES
           mv deps/node_modules deps/@quri/squiggle-lang
 
@@ -150,14 +158,14 @@
         packageJSON = ./packages/components/package.json;
         yarnLock = ./yarn.lock;
         packageResolutions."@quri/squiggle-lang" = lang-build;
-        workspaceDependencies = [ lang-yarnPackage ];
+        workspaceDependencies = [ lang-yarnPackage monorepo-yarnPackage ];
       };
       components-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-components-lint";
         src = components-yarnPackage
           + "/libexec/@quri/squiggle-components/deps/@quri/squiggle-components";
         buildInputs = buildInputsCommon;
-        buildPhase = "../../node_modules/@quri/squiggle-lang/node_modules/.bin/prettier --check .";
+        buildPhase = "yarn --offline lint";
         installPhase = "mkdir -p $out";
       };
       components-package-build = pkgs.stdenv.mkDerivation {
@@ -181,6 +189,7 @@
         packageJSON = ./packages/website/package.json;
         yarnLock = ./yarn.lock;
         packageResolutions."@quri/squiggle-components" = components-package-build;
+        workspaceDependencies = [ components-yarnPackage ];
       };
       website-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-website-lint";
