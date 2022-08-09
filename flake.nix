@@ -143,7 +143,7 @@
         installPhase = ''
           mkdir -p $out
           cp -r @quri/squiggle-lang/dist $out
-          cp @quri/squiggle-lang/package.json $out/dist
+          cp @quri/squiggle-lang/*.json $out/dist
         '';
       };
 
