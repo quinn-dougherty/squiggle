@@ -153,7 +153,7 @@
         packageJSON = ./packages/components/package.json;
         yarnLock = ./yarn.lock;
         packageResolutions."@quri/squiggle-lang" = lang-build + "/@quri/squiggle-lang";
-        yarnPreBuild = "chmod +x ${lang-build}/deps/@quri/squiggle-lang/node_moduels/.bin/mathjs";
+        yarnPreBuild = "chmod +x ${lang-build}/@quri/squiggle-lang/node_modules/.bin/mathjs";
       };
       components-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-components-lint";
@@ -215,12 +215,12 @@
       packages.${system} = {
         default = website;
         lang-bundle = lang-bundle;
+        components = components-package-build;
+        docs-site = website;
         tmp = {
           lang-build = lang-build;
           components-yarnPkg = components-yarnPackage;
         };
-        components = components-package-build;
-        docs-site = website;
       };
 
       # herc
