@@ -184,6 +184,10 @@
         installPhase = ''
           mkdir -p $out
 
+          # annoying hack because permissions on transitive dependencies later on
+          mv deps/@quri/squiggle-components/node_modules deps/@quri/squiggle-components/NODE_MODULES
+          mv deps/node_modules deps/@quri/squiggle-components
+
           # patching .gitignore so flake keeps build artefacts
           sed -i /dist/d deps/@quri/squiggle-components/.gitignore
           cp -r deps/@quri/squiggle-components/. $out
