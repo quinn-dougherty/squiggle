@@ -193,6 +193,19 @@
           cp -r deps/@quri/squiggle-components/. $out
         '';
       };
+      components-site-build = pkgs.stdenv.mkDerivation {
+        name = "squiggle-components-storybook";
+        src = components-package-build;
+        buildInputs = buildInputsCommon;
+        buildPhase = "yarn build:storybook";
+        installPhase = ''
+          mkdir -p $out
+
+          # patching .gitignore so flake keeps build artefacts
+          sed -i /\build/d squiggle-components/.gitignore
+          sed -i /storybook-tatic/d squiggle-components/.gitignore
+        '';
+      };
 
       website-yarnPackage = pkgs.mkYarnPackage {
         name = "squiggle-website_source";
@@ -234,11 +247,11 @@
         lang-bundle = lang-bundle;
         components = components-package-build;
         docs-site = website;
-        tmp = {
-          lang-build = lang-build;
-          components-yarnPkg = components-yarnPackage;
-          components-lint = components-lint;
-        };
+       # tmp = {
+       #   lang-build = lang-build;
+       #   components-yarnPkg = components-yarnPackage;
+       #   components-lint = components-lint;
+       # };
       };
 
       # herc
