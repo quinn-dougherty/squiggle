@@ -124,10 +124,10 @@
         '';
         installPhase = ''
           mkdir -p $out
-          sed -i /*.bs.js/d @quri/squiggle-lang/.gitignore
-          sed -i /*.gen.ts/d @quri/squiggle-lang/.gitignore
-          sed -i /*.gen.tsx/d @quri/squiggle-lang/.gitignore
-          sed -i /*.gen.js/d @quri/squiggle-lang/.gitignore
+          sed -i /\*.bs.js/d @quri/squiggle-lang/.gitignore
+          sed -i /\*.gen.ts/d @quri/squiggle-lang/.gitignore
+          sed -i /\*.gen.tsx/d @quri/squiggle-lang/.gitignore
+          sed -i /\*.gen.js/d @quri/squiggle-lang/.gitignore
           cp -r . $out
         '';
       };
