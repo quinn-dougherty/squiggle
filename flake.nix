@@ -85,8 +85,6 @@
         src = lang-yarnPackage
           + "/libexec/@quri/squiggle-lang/deps/@quri/squiggle-lang";
         buildInputs = buildInputsCommon;
-        # Can only do prettier because `./lint.sh` script for rescript doesn't work,
-        # see https://stackoverflow.com/questions/18018359/all-newlines-are-removed-when-saving-cat-output-into-a-variable
         buildPhase = ''
           yarn lint:prettier
           yarn lint:rescript
@@ -99,17 +97,17 @@
         src = lang-yarnPackage + "/libexec/@quri/squiggle-lang/";
         buildInputs = buildInputsCommon;
         buildPhase = ''
-          # A bad hack to keep the `bsconfig` consistent
-          mkdir -p deps/node_modules
-          mv node_modules/bisect_ppx deps/node_modules
 
-          # build rescript
-          yarn --offline --cwd deps/@quri/squiggle-lang build:peggy
+          # build parser
+          pushd deps/@quri/squiggle-lang
+          yarn --offline build:peggy
+          popd
         '';
         installPhase = ''
           mkdir -p $out
           mkdir -p %out/node_modules
-          cp -r $src/deps/@quri $out
+          sed -i /Reducer_Peggy_GeneratedParser.js/d deps/@quri/squiggle-lang/.gitignore
+          cp -r $src/deps/* $out
           cp -r $src/node_modules $out
         '';
       };
@@ -119,7 +117,6 @@
         src = lang-peggy-build;
         buildInputs = buildInputsCommon;
         buildPhase = ''
-          # build rescript
           pushd @quri/squiggle-lang
           yarn --offline build:rescript
           popd
@@ -134,10 +131,12 @@
         src = lang-rescript-build;
         buildInputs = buildInputsCommon;
         buildPhase = ''
-          cd @quri/squiggle-lang
+          pushd @quri/squiggle-lang
           yarn --offline build:typescript
+          popd
         '';
         installPhase = ''
+          sed -i /helpers.js/d @quri/squiggle-lang/.gitignore
           mkdir -p $out
           cp -r . $out
         '';
@@ -146,7 +145,11 @@
         name = "squiggle-lang-test";
         src = lang-typescript-build;
         buildInputs = buildInputsCommon;
-        buildPhase = "yarn --offline test";
+        buildPhase = ''
+          pushd @quri/squiggle-lang
+          yarn --offline test
+          popd
+        '';
         installPhase = ''
           mkdir -p $out
           cp -r . $out
@@ -156,7 +159,11 @@
         name = "squiggle-lang-bundle";
         src = lang-test;
         buildInputs = buildInputsCommon;
-        buildPhase = "yarn --offline bundle";
+        buildPhase = ''
+          pushd @quri/squiggle-lang
+          yarn --offline bundle
+          popd @quri/squiggle-lang
+        '';
         installPhase = ''
           mkdir -p $out
           cp -r dist $out/dist
