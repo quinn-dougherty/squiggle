@@ -153,7 +153,7 @@
         packageJSON = ./packages/components/package.json;
         yarnLock = ./yarn.lock;
         packageResolutions."@quri/squiggle-lang" = lang-build + "/@quri/squiggle-lang";
-        yarnPreBuild = "chmod +x ${lang-build}/@quri/squiggle-lang/node_modules/.bin/mathjs";
+        # yarnPreBuild = "chmod +w ${lang-build}/@quri/squiggle-lang/node_modules/.bin/mathjs";
       };
       components-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-components-lint";
