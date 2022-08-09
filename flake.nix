@@ -63,7 +63,8 @@
             '';
           };
           bisect_ppx = {
-            buildInputs = pkgWhich; #  ++ (with pkgs; [ ocaml nodePackages.esy ocamlPackages.bisect_ppx ]);
+            buildInputs =
+              pkgWhich; # ++ (with pkgs; [ ocaml nodePackages.esy ocamlPackages.bisect_ppx ]);
             postInstall = ''
               echo "PATCHELF'ING BISECT_PPX EXECUTABLE"
               THE_LD=$(patchelf --print-interpreter $(which mkdir))
@@ -74,7 +75,9 @@
           gentype = {
             postInstall = ''
               mv gentype.exe ELFLESS-gentype.exe
-              cp ${gentype.outputs.defaultPackage."${system}"}/GenType.exe gentype.exe
+              cp ${
+                gentype.outputs.defaultPackage."${system}"
+              }/GenType.exe gentype.exe
             '';
           };
         };
@@ -152,13 +155,18 @@
         '';
       };
 
+      componentsPackageJson =
+        pkgs.writeText "packages/components/patched-package.json"
+        (builtins.toJSON
+          ((pkgs.lib.attrsets.setAttrByPath [ "dependencies" "react-dom" ]
+            "^18")
+            // (pkgs.lib.importJSON ./packages/components/package.json)));
       components-yarnPackage = pkgs.mkYarnPackage {
         name = "squiggle-components_source";
         buildInputs = buildInputsCommon;
         src = ./packages/components;
-        packageJSON = ./packages/components/package.json;
+        packageJSON = componentsPackageJson;
         yarnLock = ./yarn.lock;
-        # extraBuildInputs = prettierCommon;
         packageResolutions."@quri/squiggle-lang" = lang-build;
       };
       components-lint = pkgs.stdenv.mkDerivation {
@@ -202,8 +210,8 @@
           mkdir -p $out
 
           # patching .gitignore so flake keeps build artefacts
-          sed -i /\build/d squiggle-components/.gitignore
-          sed -i /storybook-tatic/d squiggle-components/.gitignore
+          sed -i /\build/d .gitignore
+          sed -i /storybook-tatic/d .gitignore
         '';
       };
 
@@ -213,7 +221,8 @@
         packageJSON = ./packages/website/package.json;
         yarnLock = ./yarn.lock;
         packageResolutions."@quri/squiggle-lang" = lang-build;
-        packageResolutions."@quri/squiggle-components" = components-package-build;
+        packageResolutions."@quri/squiggle-components" =
+          components-package-build;
         workspaceDependencies = [ lang-yarnPackage components-yarnPackage ];
       };
       website-lint = pkgs.stdenv.mkDerivation {
@@ -227,8 +236,7 @@
       website = pkgs.stdenv.mkDerivation {
         name = "squiggle-website";
         buildInputs = buildInputsCommon;
-        src = website-yarnPackage
-          + "/libexec/squiggle-website";
+        src = website-yarnPackage + "/libexec/squiggle-website";
         buildPhase = ''
           pushd deps/squiggle-website
           yarn --offline build
@@ -253,11 +261,11 @@
         components = components-package-build;
         storybook = components-site-build;
         docs-site = website;
-       # tmp = {
-       #   lang-build = lang-build;
-       #   components-yarnPkg = components-yarnPackage;
-       #   components-lint = components-lint;
-       # };
+        # tmp = {
+        #   lang-build = lang-build;
+        #   components-yarnPkg = components-yarnPackage;
+        #   components-lint = components-lint;
+        # };
       };
 
       # herc
