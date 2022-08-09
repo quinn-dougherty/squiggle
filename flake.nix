@@ -91,65 +91,37 @@
         '';
         installPhase = "mkdir -p $out";
       };
-      lang-peggy-build = pkgs.stdenv.mkDerivation {
-        name = "squiggle-lang-peggy-build";
+      lang-build = pkgs.stdenv.mkDerivation {
+        name = "squiggle-lang-build";
         # `peggy` is in the `node_modules` that's adjacent to `deps`.
         src = lang-yarnPackage + "/libexec/@quri/squiggle-lang/";
         buildInputs = buildInputsCommon;
         buildPhase = ''
           # build parser
+          mv node_modules deps
           pushd deps/@quri/squiggle-lang
           yarn --offline build:peggy
+          yarn --offline build:rescript
+          yarn --offline build:typescript
           popd
         '';
         installPhase = ''
           mkdir -p $out
           mkdir -p %out/node_modules
           sed -i /Reducer_Peggy_GeneratedParser.js/d deps/@quri/squiggle-lang/.gitignore
-          cat deps/@quri/squiggle-lang/.gitignore
-          cp -r $src/deps/* $out
-          cp -r $src/node_modules $out
-        '';
-      };
-      lang-rescript-build = pkgs.stdenv.mkDerivation {
-        name = "squiggle-lang-rescript-build";
-        # `peggy` is in the `node_modules` that's adjacent to `deps`.
-        src = lang-peggy-build;
-        buildInputs = buildInputsCommon;
-        buildPhase = ''
-          pushd @quri/squiggle-lang
-          yarn --offline build:rescript
-          cat .gitignore
-          popd
-        '';
-        installPhase = ''
-          mkdir -p $out
           sed -i /\*.bs.js/d @quri/squiggle-lang/.gitignore
           sed -i /\*.gen.ts/d @quri/squiggle-lang/.gitignore
           sed -i /\*.gen.tsx/d @quri/squiggle-lang/.gitignore
           sed -i /\*.gen.js/d @quri/squiggle-lang/.gitignore
-          cp -r . $out
-        '';
-      };
-      lang-typescript-build = pkgs.stdenv.mkDerivation {
-        name = "squiggle-lang-typescript-build";
-        src = lang-rescript-build;
-        buildInputs = buildInputsCommon;
-        buildPhase = ''
-          pushd @quri/squiggle-lang
-          yarn --offline build:typescript
-          popd
-        '';
-        installPhase = ''
           sed -i /helpers.js/d @quri/squiggle-lang/.gitignore
-          cat @quri/squiggle-lang/.gitignore
-          mkdir -p $out
-          cp -r . $out
+
+          cp -r $src/deps/. $out
+          cp -r $src/node_modules $out
         '';
       };
       lang-test = pkgs.stdenv.mkDerivation {
         name = "squiggle-lang-test";
-        src = lang-typescript-build;
+        src = lang-build;
         buildInputs = buildInputsCommon;
         buildPhase = ''
           pushd @quri/squiggle-lang
@@ -282,10 +254,8 @@
           squiggle-lang-test = checks."${system}".lang-test;
         };
         lang.outputs = {
-          squiggle-lang-peggy-build = lang-peggy-build;
-          squiggle-lang-rescript-build = lang-rescript-build;
-          squiggle-lang-typescript-build = lang-typescript-build;
-          squiggle-lang-bundle = packages."${system}".lang-bundle;
+          squiggle-lang-build = lang-build;
+          squiggle-lang-bundle = lang-bundle;
         };
         components.outputs = {
           squiggle-components = packages."${system}".components;
