@@ -116,9 +116,7 @@
         src = lang-build;
         buildInputs = buildInputsCommon;
         buildPhase = ''
-          pushd $src/@quri/squiggle-lang
           yarn --offline test
-          popd
         '';
         installPhase = ''
           mkdir -p $out
@@ -130,9 +128,7 @@
         src = lang-test;
         buildInputs = buildInputsCommon;
         buildPhase = ''
-          pushd @quri/squiggle-lang
           yarn --offline bundle
-          popd
         '';
         installPhase = ''
           mkdir -p $out
@@ -150,11 +146,6 @@
         yarnLock = ./yarn.lock;
         packageResolutions."@quri/squiggle-lang" = lang-build; #  + "/@quri/squiggle-lang";
         workspaceDependencies = [ lang-yarnPackage ];
-       # yarnPreBuild = ''
-       #   mkdir -p MYYARNCACHE
-       #   cp -r ${lang-build}/node_modules/. MYYARNCACHE
-       #   echo 'yarn-offline-mirror "./MYYARNCACHE"' > .yarnrc
-       # '';
       };
       components-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-components-lint";
