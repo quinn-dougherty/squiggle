@@ -97,7 +97,6 @@
         src = lang-yarnPackage + "/libexec/@quri/squiggle-lang/";
         buildInputs = buildInputsCommon;
         buildPhase = ''
-
           # build parser
           pushd deps/@quri/squiggle-lang
           yarn --offline build:peggy
@@ -107,6 +106,7 @@
           mkdir -p $out
           mkdir -p %out/node_modules
           sed -i /Reducer_Peggy_GeneratedParser.js/d deps/@quri/squiggle-lang/.gitignore
+          cat deps/@quri/squiggle-lang/.gitignore
           cp -r $src/deps/* $out
           cp -r $src/node_modules $out
         '';
@@ -119,6 +119,7 @@
         buildPhase = ''
           pushd @quri/squiggle-lang
           yarn --offline build:rescript
+          cat .gitignore
           popd
         '';
         installPhase = ''
@@ -137,6 +138,7 @@
         '';
         installPhase = ''
           sed -i /helpers.js/d @quri/squiggle-lang/.gitignore
+          cat @quri/squiggle-lang/.gitignore
           mkdir -p $out
           cp -r . $out
         '';
@@ -148,6 +150,7 @@
         buildPhase = ''
           pushd @quri/squiggle-lang
           yarn --offline test
+          cat .gitignore
           popd
         '';
         installPhase = ''
