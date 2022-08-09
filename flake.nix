@@ -47,7 +47,7 @@
         src = ./packages/squiggle-lang;
         packageJSON = ./packages/squiggle-lang/package.json;
         yarnLock = ./yarn.lock;
-        extraBuildInputs = prettierCommon;
+        # extraBuildInputs = prettierCommon;
         pkgConfig = {
           rescript = {
             buildInputs = pkgWhich ++ [ pkgs.gcc_multi ];
@@ -83,7 +83,7 @@
         name = "squiggle-lang-lint";
         src = lang-yarnPackage
           + "/libexec/@quri/squiggle-lang/deps/@quri/squiggle-lang";
-        buildInputs = buildInputsCommon;
+        buildInputs = buildInputsCommon ++ prettierCommon;
         buildPhase = ''
           yarn lint:prettier
           yarn lint:rescript
@@ -158,14 +158,14 @@
         src = ./packages/components;
         packageJSON = ./packages/components/package.json;
         yarnLock = ./yarn.lock;
-        extraBuildInputs = prettierCommon;
+        # extraBuildInputs = prettierCommon;
         packageResolutions."@quri/squiggle-lang" = lang-build;
       };
       components-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-components-lint";
         src = components-yarnPackage
           + "/libexec/@quri/squiggle-components/deps/@quri/squiggle-components";
-        buildInputs = buildInputsCommon;
+        buildInputs = buildInputsCommon ++ prettierCommon;
         buildPhase = "yarn lint";
         installPhase = "mkdir -p $out";
       };
