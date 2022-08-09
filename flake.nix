@@ -106,9 +106,9 @@
           mkdir -p $out
           # mkdir -p $out/node_modules
           mv deps/@quri/squiggle-lang/GITIGNORE deps/@quri/squiggle-lang/.gitignore
-          mv deps/node_modules /deps/@quri/squiggle-lang
+          mv deps/@quri/squiggle-lang/node_modules deps/@quri/squiggle-lang/NODE_MODULES
+          mv deps/node_modules deps/@quri/squiggle-lang
           cp -r deps/@quri/squiggle-lang/* $out
-          # cp -r deps/node_modules $out
         '';
       };
       lang-test = pkgs.stdenv.mkDerivation {
