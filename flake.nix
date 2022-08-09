@@ -92,7 +92,7 @@
       lang-build = pkgs.stdenv.mkDerivation {
         name = "squiggle-lang-build";
         # `peggy` is in the `node_modules` that's adjacent to `deps`.
-        src = lang-yarnPackage + "/libexec/@quri/squiggle-lang/";
+        src = lang-yarnPackage + "/libexec/@quri/squiggle-lang";
         buildInputs = buildInputsCommon;
         buildPhase = ''
           mv node_modules deps
@@ -100,13 +100,8 @@
           yarn --offline build:peggy
           yarn --offline build:rescript
           yarn --offline build:typescript
-          popd
-        '';
-        installPhase = ''
-          mkdir -p $out
-          mkdir -p %out/node_modules
 
-          cp deps/@quri/squiggle-lang/.gitignore GITIGNORE
+          mv .gitignore GITIGNORE
           sed -i /Reducer_Peggy_GeneratedParser.js/d GITIGNORE
           sed -i /\*.bs.js/d GITIGNORE
           sed -i /\*.gen.ts/d GITIGNORE
@@ -114,9 +109,14 @@
           sed -i /\*.gen.js/d GITIGNORE
           sed -i /helpers.js/d GITIGNORE
 
-          cp -r $src/deps/. $out
+          popd
+        '';
+        installPhase = ''
+          mkdir -p $out
+          mkdir -p %out/node_modules
+          cp -r $src/deps/* $out
           cp -r $src/node_modules $out
-          cp GITIGNORE $out/.gitignore
+          cp deps/@quri/squiggle-lang/GITIGNORE $out/@quri/squiggle-lang/.gitignore
         '';
       };
       lang-test = pkgs.stdenv.mkDerivation {
@@ -125,7 +125,6 @@
         buildInputs = buildInputsCommon;
         buildPhase = ''
           pushd $src/@quri/squiggle-lang
-          cat .gitignore
           yarn --offline test
           popd
         '';
