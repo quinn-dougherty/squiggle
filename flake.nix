@@ -109,11 +109,11 @@
           mkdir -p $out
           mkdir -p %out/node_modules
           sed -i /Reducer_Peggy_GeneratedParser.js/d deps/@quri/squiggle-lang/.gitignore
-          sed -i /\*.bs.js/d @quri/squiggle-lang/.gitignore
-          sed -i /\*.gen.ts/d @quri/squiggle-lang/.gitignore
-          sed -i /\*.gen.tsx/d @quri/squiggle-lang/.gitignore
-          sed -i /\*.gen.js/d @quri/squiggle-lang/.gitignore
-          sed -i /helpers.js/d @quri/squiggle-lang/.gitignore
+          sed -i /\*.bs.js/d deps/@quri/squiggle-lang/.gitignore
+          sed -i /\*.gen.ts/d deps/@quri/squiggle-lang/.gitignore
+          sed -i /\*.gen.tsx/d deps/@quri/squiggle-lang/.gitignore
+          sed -i /\*.gen.js/d deps/@quri/squiggle-lang/.gitignore
+          sed -i /helpers.js/d deps/@quri/squiggle-lang/.gitignore
 
           cp -r $src/deps/. $out
           cp -r $src/node_modules $out
