@@ -110,13 +110,15 @@
           sed -i /helpers.js/d GITIGNORE
 
           popd
+          ls deps/node_modules/bisect_ppx/src/runtime/js
         '';
         installPhase = ''
           mkdir -p $out
-          mkdir -p %out/node_modules
-          cp -r $src/deps/* $out
-          cp -r $src/node_modules $out
-          cp deps/@quri/squiggle-lang/GITIGNORE $out/@quri/squiggle-lang/.gitignore
+          # mkdir -p $out/node_modules
+          mv deps/@quri/squiggle-lang/GITIGNORE deps/@quri/squiggle-lang/.gitignore
+          cp -r deps/* $out
+          ls $out
+          cp -r deps/node_modules $out
         '';
       };
       lang-test = pkgs.stdenv.mkDerivation {
@@ -140,11 +142,11 @@
         buildPhase = ''
           pushd @quri/squiggle-lang
           yarn --offline bundle
-          popd @quri/squiggle-lang
+          popd
         '';
         installPhase = ''
           mkdir -p $out
-          cp -r dist $out/dist
+          cp -r @quri/squiggle-lang/dist $out
         '';
         # passthru to spoof that this is still a yarn package even tho it's a subsequent derivation
         workspaceDependencies = [ ];
@@ -163,7 +165,6 @@
         yarnPreBuild = ''
           mkdir -p $src/node_modules/@quri/squiggle-lang
           cp -r ${lang-bundle}/dist $src/node_modules/@quri/squiggle-lang
-          cp -r ${lang-bundle}/dist/node_modules/* $src/node_modules
         '';
 
       };
