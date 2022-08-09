@@ -149,12 +149,12 @@
 
       components-yarnPackage = pkgs.mkYarnPackage {
         name = "squiggle-components_source";
-        buildInputs = buildInputsCommon ++ [ lang-build ];
+        buildInputs = buildInputsCommon;
         src = ./packages/components;
         packageJSON = ./packages/components/package.json;
         yarnLock = ./yarn.lock;
         yarnFlags = yarnFlagsCommon;
-        packageResolutions."@quri/squiggle-lang" = lang-build + "/@quri/squiggle-lang";
+        packageResolutions."@quri/squiggle-lang" = lang-bundle + "/dist";
       };
       components-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-components-lint";
@@ -173,7 +173,7 @@
         '';
         installPhase = ''
           mkdir -p $out
-          cp -r $src $out
+          cp -r . $out
           # cp -r ../../../node_modules $out
         '';
       };
@@ -216,6 +216,10 @@
       packages.${system} = {
         default = website;
         lang-bundle = lang-bundle;
+        tmp = {
+          lang-build = lang-build;
+          components-yarnPkg = components-yarnPackage;
+        };
         components = components-package-build;
         docs-site = website;
       };
