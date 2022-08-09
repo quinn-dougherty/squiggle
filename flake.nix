@@ -182,6 +182,9 @@
         '';
         installPhase = ''
           mkdir -p $out
+
+          # patching .gitignore so flake keeps build artefacts
+          sed -i /dist/d @quri/components/.gitignore
           cp -r . $out
           # cp -r ../../../node_modules $out
         '';
