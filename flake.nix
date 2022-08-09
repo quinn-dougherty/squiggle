@@ -42,7 +42,6 @@
         src = ./packages/squiggle-lang;
         packageJSON = ./packages/squiggle-lang/package.json;
         yarnLock = ./yarn.lock;
-        yarnFlags = yarnFlagsCommon;
         pkgConfig = {
           rescript = {
             buildInputs = pkgWhich ++ [ pkgs.gcc_multi ];
@@ -153,8 +152,8 @@
         src = ./packages/components;
         packageJSON = ./packages/components/package.json;
         yarnLock = ./yarn.lock;
-        yarnFlags = yarnFlagsCommon;
         packageResolutions."@quri/squiggle-lang" = lang-build + "/@quri/squiggle-lang";
+        yarnPreBuild = "chmod +x ${lang-build}/deps/@quri/squiggle-lang/node_moduels/.bin/mathjs";
       };
       components-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-components-lint";
