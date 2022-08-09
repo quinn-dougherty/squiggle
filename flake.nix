@@ -92,6 +92,7 @@
           yarn --offline build:rescript
           yarn --offline build:typescript
 
+          # custom gitignore so that the flake keeps build artefacts
           mv .gitignore GITIGNORE
           sed -i /Reducer_Peggy_GeneratedParser.js/d GITIGNORE
           sed -i /\*.bs.js/d GITIGNORE
@@ -106,9 +107,13 @@
           mkdir -p $out
           # mkdir -p $out/node_modules
           mv deps/@quri/squiggle-lang/GITIGNORE deps/@quri/squiggle-lang/.gitignore
+
+          # annoying hack because permissions on transitive dependencies
           mv deps/@quri/squiggle-lang/node_modules deps/@quri/squiggle-lang/NODE_MODULES
           mv deps/node_modules deps/@quri/squiggle-lang
-          cp -r deps/@quri/squiggle-lang/* $out
+
+          # the proper install phase
+          cp -r deps/@quri/squiggle-lang/. $out
         '';
       };
       lang-test = pkgs.stdenv.mkDerivation {
@@ -152,7 +157,7 @@
         src = components-yarnPackage
           + "/libexec/@quri/squiggle-components/deps/@quri/squiggle-components";
         buildInputs = buildInputsCommon;
-        buildPhase = "yarn --offline lint";
+        buildPhase = "../../node_modules/@quri/squiggle-lang/node_modules/.bin/prettier --check .";
         installPhase = "mkdir -p $out";
       };
       components-package-build = pkgs.stdenv.mkDerivation {
