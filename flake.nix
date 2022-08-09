@@ -154,7 +154,7 @@
         packageJSON = ./packages/components/package.json;
         yarnLock = ./yarn.lock;
         yarnFlags = yarnFlagsCommon;
-        packageResolutions."@quri/squiggle-lang" = lang-bundle + "/dist";
+        packageResolutions."@quri/squiggle-lang" = lang-build + "/@quri/squiggle-lang";
       };
       components-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-components-lint";
