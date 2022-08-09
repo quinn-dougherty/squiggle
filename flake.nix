@@ -68,10 +68,6 @@
           };
           gentype = {
             postInstall = ''
-              # echo "PATCHELF'ING GENTYPE"
-              # THE_LD=$(patchelf --print-interpreter $(which mkdir))
-              # # patchelf --set-interpreter $THE_LD gentype.exe && echo "- patched interpreter for gentype.exe"
-              # patchelf --set-interpreter $THE_LD vendor-linux/gentype.exe && echo "- patched interpreter for vendor-linux/gentype.exe"
               mv gentype.exe ELFLESS-gentype.exe
               cp ${gentype.outputs.defaultPackage."${system}"}/GenType.exe gentype.exe
             '';
@@ -147,11 +143,8 @@
         installPhase = ''
           mkdir -p $out
           cp -r @quri/squiggle-lang/dist $out
+          cp @quri/squiggle-lang/package.json $out/dist
         '';
-        # passthru to spoof that this is still a yarn package even tho it's a subsequent derivation
-        workspaceDependencies = [ ];
-        pname = "@quri/squiggle-lang";
-        packageJSON = ./packages/squiggle-lang/package.json;
       };
 
       components-yarnPackage = pkgs.mkYarnPackage {
@@ -160,13 +153,14 @@
         src = ./packages/components;
         packageJSON = ./packages/components/package.json;
         yarnLock = ./yarn.lock;
-        yarnFlags = yarnFlagsCommon;
-        workspaceDependencies = [ lang-bundle ];
-        yarnPreBuild = ''
-          mkdir -p $src/node_modules/@quri/squiggle-lang
-          cp -r ${lang-bundle}/dist $src/node_modules/@quri/squiggle-lang
-        '';
-
+        yarnFlags = yarnFlagsCommon ++ [ "--cache-folder=node_modules" ];
+        pkgConfig = {
+          "@quri/squiggle-lang" = {
+            preInstall = ''
+              cp -r ${lang-build} .
+            '';
+          };
+        };
       };
       components-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-components-lint";
@@ -249,21 +243,19 @@
 
       # herc
       herculesCI.onPush = {
-        lang-checks.outputs = {
-          squiggle-lang-lint = checks."${system}".lang-lint;
-          squiggle-lang-test = checks."${system}".lang-test;
-        };
         lang.outputs = {
+          squiggle-lang-lint = checks.${system}.lang-lint;
+          squiggle-lang-test = checks.${system}.lang-test;
           squiggle-lang-build = lang-build;
-          squiggle-lang-bundle = lang-bundle;
+          squiggle-lang-bundle = packages.${system}.lang-bundle;
         };
         components.outputs = {
-          squiggle-components = packages."${system}".components;
-          squiggle-components-lint = checks."${system}".components-lint;
+          squiggle-components = packages.${system}.components;
+          squiggle-components-lint = checks.${system}.components-lint;
         };
         docs-site.outputs = {
-          squiggle-website = packages."${system}".docs-site;
-          docusaurus-lint = checks."${system}".docusaurus-lint;
+          squiggle-website = packages.${system}.docs-site;
+          docusaurus-lint = checks.${system}.docusaurus-lint;
         };
       };
     };
