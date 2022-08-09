@@ -31,10 +31,6 @@
       };
       buildInputsCommon = with pkgs; [ nodejs yarn ];
       pkgWhich = [ pkgs.which ];
-      yarnFlagsCommon = [
-        "--offline"
-        "--frozen-lockfile"
-      ];
 
       # packages in subrepos
       lang-yarnPackage = pkgs.mkYarnPackage {
@@ -105,15 +101,14 @@
           sed -i /helpers.js/d GITIGNORE
 
           popd
-          ls deps/node_modules/bisect_ppx/src/runtime/js
         '';
         installPhase = ''
           mkdir -p $out
           # mkdir -p $out/node_modules
           mv deps/@quri/squiggle-lang/GITIGNORE deps/@quri/squiggle-lang/.gitignore
-          cp -r deps/* $out
-          ls $out
-          cp -r deps/node_modules $out
+          mv deps/node_modules /deps/@quri/squiggle-lang
+          cp -r deps/@quri/squiggle-lang/* $out
+          # cp -r deps/node_modules $out
         '';
       };
       lang-test = pkgs.stdenv.mkDerivation {
@@ -146,14 +141,20 @@
         '';
       };
 
+      # I'll have to pass along the cache between jobs. manually.
       components-yarnPackage = pkgs.mkYarnPackage {
         name = "squiggle-components_source";
         buildInputs = buildInputsCommon;
         src = ./packages/components;
         packageJSON = ./packages/components/package.json;
         yarnLock = ./yarn.lock;
-        packageResolutions."@quri/squiggle-lang" = lang-build + "/@quri/squiggle-lang";
-        # yarnPreBuild = "chmod +w ${lang-build}/@quri/squiggle-lang/node_modules/.bin/mathjs";
+        packageResolutions."@quri/squiggle-lang" = lang-build; #  + "/@quri/squiggle-lang";
+        workspaceDependencies = [ lang-yarnPackage ];
+       # yarnPreBuild = ''
+       #   mkdir -p MYYARNCACHE
+       #   cp -r ${lang-build}/node_modules/. MYYARNCACHE
+       #   echo 'yarn-offline-mirror "./MYYARNCACHE"' > .yarnrc
+       # '';
       };
       components-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-components-lint";
@@ -182,7 +183,6 @@
         src = ./packages/website;
         packageJSON = ./packages/website/package.json;
         yarnLock = ./yarn.lock;
-        yarnFlags = yarnFlagsCommon;
         packageResolutions."@quri/squiggle-components" = components-package-build;
       };
       website-lint = pkgs.stdenv.mkDerivation {
