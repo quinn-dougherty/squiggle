@@ -149,18 +149,12 @@
 
       components-yarnPackage = pkgs.mkYarnPackage {
         name = "squiggle-components_source";
-        buildInputs = buildInputsCommon;
+        buildInputs = buildInputsCommon ++ [ lang-build ];
         src = ./packages/components;
         packageJSON = ./packages/components/package.json;
         yarnLock = ./yarn.lock;
-        yarnFlags = yarnFlagsCommon ++ [ "--cache-folder=node_modules" ];
-        pkgConfig = {
-          "@quri/squiggle-lang" = {
-            preInstall = ''
-              cp -r ${lang-build} .
-            '';
-          };
-        };
+        yarnFlags = yarnFlagsCommon;
+        packageResolutions."@quri/squiggle-lang" = lang-build + "/@quri/squiggle-lang";
       };
       components-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-components-lint";
@@ -169,33 +163,19 @@
         buildPhase = "yarn --offline lint";
         installPhase = "mkdir -p $out";
       };
-      components-typescript-build = pkgs.stdenv.mkDerivation {
-        name = "squiggle-components-typescript-build";
+      components-package-build = pkgs.stdenv.mkDerivation {
+        name = "squiggle-components-package-build";
         src = components-yarnPackage
           + "/libexec/@quri/squiggle-components/deps/@quri/squiggle-components";
         buildInputs = buildInputsCommon;
         buildPhase = ''
-          yarn --offline build:cjs
+          yarn --offline build:cjs && yarn --offline build:css
         '';
         installPhase = ''
           mkdir -p $out
           cp -r $src $out
-          cp -r ../../../node_modules $out
+          # cp -r ../../../node_modules $out
         '';
-      };
-      components-postcss-build = pkgs.stdenv.mkDerivation {
-        name = "squiggle-postcss-build";
-        src = components-typescript-build;
-        buildInputs = buildInputsCommon;
-        buildPhase = "yarn --offline build:css";
-        installPhase = ''
-          mkdir -p $out
-          cp -r $src $out
-        '';
-        # passthru to spoof that this is still a yarn package even tho it's a subsequent derivation
-        workspaceDependencies = [ ];
-        pname = "@quri/squiggle-components";
-        packageJSON = ./packages/components/package.json;
       };
 
       website-yarnPackage = pkgs.mkYarnPackage {
@@ -204,8 +184,7 @@
         packageJSON = ./packages/website/package.json;
         yarnLock = ./yarn.lock;
         yarnFlags = yarnFlagsCommon;
-        workspaceDependencies = [ components-postcss-build ];
-
+        packageResolutions."@quri/squiggle-components" = components-package-build;
       };
       website-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-website-lint";
@@ -228,16 +207,16 @@
       };
     in rec {
 
-      checks."${system}" = {
+      checks.${system} = {
         lang-lint = lang-lint;
         lang-test = lang-test;
         components-lint = components-lint;
         docusaurus-lint = website-lint;
       };
-      packages."${system}" = {
+      packages.${system} = {
         default = website;
         lang-bundle = lang-bundle;
-        components = components-typescript-build;
+        components = components-package-build;
         docs-site = website;
       };
 
