@@ -124,6 +124,8 @@
         '';
         installPhase = ''
           mkdir -p $out
+          sed -i /*.bs.js/d @quri/squiggle-lang/.gitignore
+          sed -i /*.gen.*/d @quri/squiggle-lang/.gitignore
           cp -r . $out
         '';
       };
