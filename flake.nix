@@ -156,19 +156,15 @@
         src = ./packages/components;
         packageJSON = ./packages/components/package.json;
         yarnLock = ./yarn.lock;
+        extraBuildInputs = [ lang-build ];
         packageResolutions."@quri/squiggle-lang" = lang-build;
-        workspaceDependencies = [ lang-yarnPackage monorepo-yarnPackage ];
       };
       components-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-components-lint";
         src = components-yarnPackage
-          + "/libexec/@quri/squiggle-components";
+          + "/libexec/@quri/squiggle-components/deps/@quri/squiggle-components";
         buildInputs = buildInputsCommon;
-        buildPhase = ''
-          pushd deps/@quri/squiggle-components
-          yarn --offline lint
-          popd
-        '';
+        buildPhase = "yarn lint";
         installPhase = "mkdir -p $out";
       };
       components-package-build = pkgs.stdenv.mkDerivation {
@@ -176,17 +172,19 @@
         src = components-yarnPackage + "/libexec/@quri/squiggle-components";
         buildInputs = buildInputsCommon;
         buildPhase = ''
+          cp -r node_modules/@quri/squiggle-lang deps/@quri
           pushd deps/@quri/squiggle-components
-          yarn --offline build:cjs && yarn --offline build:css
+
+          yarn --offline build:cjs
+          yarn --offline build:css
           popd
         '';
         installPhase = ''
           mkdir -p $out
 
           # patching .gitignore so flake keeps build artefacts
-          sed -i /dist/d @quri/components/.gitignore
-          cp -r . $out
-          # cp -r ../../../node_modules $out
+          sed -i /dist/d deps/@quri/squiggle-components/.gitignore
+          cp -r deps/@quri/squiggle-components/. $out
         '';
       };
 
@@ -196,7 +194,6 @@
         packageJSON = ./packages/website/package.json;
         yarnLock = ./yarn.lock;
         packageResolutions."@quri/squiggle-components" = components-package-build;
-        workspaceDependencies = [ components-yarnPackage ];
       };
       website-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-website-lint";
@@ -230,10 +227,11 @@
         lang-bundle = lang-bundle;
         components = components-package-build;
         docs-site = website;
-        #tmp = {
-        #  lang-build = lang-build;
-        #  components-yarnPkg = components-yarnPackage;
-        # };
+        tmp = {
+          lang-build = lang-build;
+          components-yarnPkg = components-yarnPackage;
+          components-lint = components-lint;
+        };
       };
 
       # herc
