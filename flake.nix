@@ -30,6 +30,7 @@
         ];
       };
       buildInputsCommon = with pkgs; [ nodejs yarn ];
+      prettierCommon = with pkgs.nodePackages; [ prettier ];
       pkgWhich = [ pkgs.which ];
 
       # To get prettier into later source trees
@@ -46,6 +47,7 @@
         src = ./packages/squiggle-lang;
         packageJSON = ./packages/squiggle-lang/package.json;
         yarnLock = ./yarn.lock;
+        extraBuildInputs = prettierCommon;
         pkgConfig = {
           rescript = {
             buildInputs = pkgWhich ++ [ pkgs.gcc_multi ];
@@ -156,7 +158,7 @@
         src = ./packages/components;
         packageJSON = ./packages/components/package.json;
         yarnLock = ./yarn.lock;
-        extraBuildInputs = [ lang-build ];
+        extraBuildInputs = prettierCommon;
         packageResolutions."@quri/squiggle-lang" = lang-build;
       };
       components-lint = pkgs.stdenv.mkDerivation {
@@ -194,13 +196,15 @@
         packageJSON = ./packages/website/package.json;
         yarnLock = ./yarn.lock;
         packageResolutions."@quri/squiggle-components" = components-package-build;
+        packageResolutions."@quri/squiggle-lang" = lang-build;
       };
       website-lint = pkgs.stdenv.mkDerivation {
         name = "squiggle-website-lint";
         buildInputs = buildInputsCommon;
         src = website-yarnPackage
           + "/libexec/squiggle-website/deps/squiggle-website";
-        buildPhase = "yarn --offline lint";
+        extraBuildInputs = prettierCommon;
+        buildPhase = "yarn lint";
         installPhase = "mkdir -p $out";
       };
       website = pkgs.stdenv.mkDerivation {
