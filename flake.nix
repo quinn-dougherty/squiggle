@@ -241,7 +241,7 @@
         buildInputs = buildInputsCommon ++ prettierCommon;
         src = website-yarnPackage
           + "/libexec/squiggle-website/deps/squiggle-website";
-        buildPhase = "yarn lint";
+        buildPhase = "yarn --offline lint";
         installPhase = "mkdir -p $out";
       };
       website = pkgs.stdenv.mkDerivation {
