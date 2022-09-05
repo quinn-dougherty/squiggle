@@ -2885,6 +2885,11 @@
     "@react-hook/passive-layout-effect" "^1.2.0"
     "@react-hook/resize-observer" "^1.2.1"
 
+"@rescript/std@^10.0.1":
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/@rescript/std/-/std-10.0.1.tgz#2ffa229f3345fea3341fed4bbc9b15949cf182ba"
+  integrity sha512-cchIxAI/zVU2sITZgVWz/QOKSRDGEhGyzMTWfsZdgNf6QD9+S/CUVfS1lBqPaX9GaGy1FCWHAqGYwIIaVqAS4Q==
+
 "@rescript/std@^9.1.4":
   version "9.1.4"
   resolved "https://registry.yarnpkg.com/@rescript/std/-/std-9.1.4.tgz#94971cb504b10d36d470618fa1c6f0a2d03a6b9b"
@@ -4897,9 +4902,9 @@
     "@types/react" "*"
 
 "@types/react@*", "@types/react@^18.0.1", "@types/react@^18.0.9":
-  version "18.0.17"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.0.17.tgz#4583d9c322d67efe4b39a935d223edcc7050ccf4"
-  integrity sha512-38ETy4tL+rn4uQQi7mB81G7V1g0u2ryquNmsVIOKUAEIDK+3CUjZ6rSRpdvS99dNBnkLFL83qfmtLacGOTIhwQ==
+  version "18.0.18"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.0.18.tgz#9f16f33d57bc5d9dca848d12c3572110ff9429ac"
+  integrity sha512-6hI08umYs6NaiHFEEGioXnxJ+oEhY3eRz8VCUaudZmGdtvPviCJB8mgaMxaDWAdPSYd4eFavrPk2QIolwbLYrg==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
