@@ -4897,9 +4897,9 @@
     "@types/react" "*"
 
 "@types/react@*", "@types/react@^18.0.1", "@types/react@^18.0.9":
-  version "18.0.17"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.0.17.tgz#4583d9c322d67efe4b39a935d223edcc7050ccf4"
-  integrity sha512-38ETy4tL+rn4uQQi7mB81G7V1g0u2ryquNmsVIOKUAEIDK+3CUjZ6rSRpdvS99dNBnkLFL83qfmtLacGOTIhwQ==
+  version "18.0.19"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.0.19.tgz#269a5f35b9a73c69dfb0c7189017013ab02acbaa"
+  integrity sha512-BDc3Q+4Q3zsn7k9xZrKfjWyJsSlEDMs38gD1qp2eDazLCdcPqAT+vq1ND+Z8AGel/UiwzNUk8ptpywgNQcJ1MQ==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -9735,10 +9735,10 @@ framer-motion@^6.5.1:
   optionalDependencies:
     "@emotion/is-prop-valid" "^0.8.2"
 
-framer-motion@^7.1.1:
-  version "7.1.1"
-  resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-7.1.1.tgz#4d56ed18a7cf2c6a1a4a1af5b57714f8e6b52d9e"
-  integrity sha512-ONFaG7as1GBBYYIqzX8ENVsfa4eh6f7/nSc3QCADAHOaCt1Lh3UdWbQ0+HVGOOORvEW2L99GlCr4wQc0GLddXg==
+framer-motion@^7.3.2:
+  version "7.3.2"
+  resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-7.3.2.tgz#9768092cd98cf0ebaf70864f1248f2e703305a15"
+  integrity sha512-BTG0BqJSwxoFBWpwaaxS/954DGZFsluF+dUv9Hfq53VNkwUt5g+wYTEM66oTUhiH/+6R/y0Rq+BmkUBcmzbyMQ==
   dependencies:
     "@motionone/dom" "10.13.1"
     framesync "6.1.2"
