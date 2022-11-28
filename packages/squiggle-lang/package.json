@@ -42,7 +42,7 @@
   "dependencies": {
     "@rescript/std": "^9.1.4",
     "@stdlib/stats": "^0.0.13",
-    "jstat": "^1.9.5",
+    "jstat": "^1.9.6",
     "lodash": "^4.17.21",
     "mathjs": "^11.0.1",
     "pdfast": "^0.2.0"
