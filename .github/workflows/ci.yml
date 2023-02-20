@@ -64,7 +64,7 @@ jobs:
       - name: Check rescript lint
         run: yarn lint:rescript
       - name: Check javascript, typescript, and markdown lint
-        uses: creyD/prettier_action@v4.2
+        uses: creyD/prettier_action@v4.3
         with:
           dry: true
           prettier_options: --check packages/squiggle-lang
@@ -109,7 +109,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Check javascript, typescript, and markdown lint
-        uses: creyD/prettier_action@v4.2
+        uses: creyD/prettier_action@v4.3
         with:
           dry: true
           prettier_options: --check packages/components --ignore-path packages/components/.prettierignore
@@ -146,7 +146,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Check javascript, typescript, and markdown lint
-        uses: creyD/prettier_action@v4.2
+        uses: creyD/prettier_action@v4.3
         with:
           dry: true
           prettier_options: --check packages/website
@@ -215,7 +215,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Check javascript, typescript, and markdown lint
-        uses: creyD/prettier_action@v4.2
+        uses: creyD/prettier_action@v4.3
         with:
           dry: true
           prettier_options: --check packages/cli
