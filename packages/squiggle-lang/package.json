@@ -61,7 +61,7 @@
     "jest": "^27.5.1",
     "moduleserve": "^0.9.1",
     "nyc": "^15.1.0",
-    "peggy": "^2.0.1",
+    "peggy": "^3.0.2",
     "reanalyze": "^2.23.0",
     "rescript": "^9.1.4",
     "rescript-fast-check": "^1.1.1",
