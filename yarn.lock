@@ -4897,9 +4897,9 @@
     "@types/react" "*"
 
 "@types/react@*", "@types/react@^18.0.1", "@types/react@^18.0.9":
-  version "18.0.17"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.0.17.tgz#4583d9c322d67efe4b39a935d223edcc7050ccf4"
-  integrity sha512-38ETy4tL+rn4uQQi7mB81G7V1g0u2ryquNmsVIOKUAEIDK+3CUjZ6rSRpdvS99dNBnkLFL83qfmtLacGOTIhwQ==
+  version "18.0.33"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.0.33.tgz#a1575160cb4376787c2f5fe0312302f824baa61e"
+  integrity sha512-sHxzVxeanvQyQ1lr8NSHaj0kDzcNiGpILEVt69g9S31/7PfMvNCKLKcsHw4lYKjs3cGNJjXSP4mYzX43QlnjNA==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -5030,10 +5030,10 @@
     anymatch "^3.0.0"
     source-map "^0.6.0"
 
-"@types/webpack@^5.28.0":
-  version "5.28.0"
-  resolved "https://registry.yarnpkg.com/@types/webpack/-/webpack-5.28.0.tgz#78dde06212f038d77e54116cfe69e88ae9ed2c03"
-  integrity sha512-8cP0CzcxUiFuA9xGJkfeVpqmWTk9nx6CWwamRGCj95ph1SmlRRk9KlCZ6avhCbZd4L68LvYT6l1kpdEnQXrF8w==
+"@types/webpack@^5.28.1":
+  version "5.28.1"
+  resolved "https://registry.yarnpkg.com/@types/webpack/-/webpack-5.28.1.tgz#c369baeff31abe54b45f7f29997e1623604198d6"
+  integrity sha512-qw1MqGZclCoBrpiSe/hokSgQM/su8Ocpl3L/YHE0L6moyaypg4+5F7Uzq7NgaPKPxUxUbQ4fLPLpDWdR27bCZw==
   dependencies:
     "@types/node" "*"
     tapable "^2.2.0"
@@ -18863,10 +18863,10 @@ webpack@4:
     watchpack "^1.7.4"
     webpack-sources "^1.4.1"
 
-"webpack@>=4.43.0 <6.0.0", webpack@^5, webpack@^5.64.4, webpack@^5.73.0, webpack@^5.74.0, webpack@^5.9.0:
-  version "5.74.0"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.74.0.tgz#02a5dac19a17e0bb47093f2be67c695102a55980"
-  integrity sha512-A2InDwnhhGN4LYctJj6M1JEaGL7Luj6LOmyBHjcI8529cm5p6VXiTIW2sn6ffvEAKmveLzvu4jrihwXtPojlAA==
+"webpack@>=4.43.0 <6.0.0", webpack@^5, webpack@^5.64.4, webpack@^5.73.0, webpack@^5.78.0, webpack@^5.9.0:
+  version "5.78.0"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.78.0.tgz#836452a12416af2a7beae906b31644cb2562f9e6"
+  integrity sha512-gT5DP72KInmE/3azEaQrISjTvLYlSM0j1Ezhht/KLVkrqtv10JoP/RXhwmX/frrutOPuSq3o5Vq0ehR/4Vmd1g==
   dependencies:
     "@types/eslint-scope" "^3.7.3"
     "@types/estree" "^0.0.51"
