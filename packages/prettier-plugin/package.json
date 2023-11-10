@@ -1,0 +1,45 @@
+{
+  "name": "@quri/prettier-plugin-squiggle",
+  "version": "0.8.7-0",
+  "license": "MIT",
+  "homepage": "https://squiggle-language.com",
+  "author": "Quantified Uncertainty Research Institute",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/quantified-uncertainty/squiggle.git",
+    "directory": "packages/prettier-plugin"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+  },
+  "dependencies": {
+    "@quri/squiggle-lang": "workspace:*",
+    "prettier": "^3.0.3"
+  },
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.23.2",
+    "@types/jest": "^29.5.7",
+    "jest": "^29.7.0",
+    "typescript": "^5.2.2"
+  },
+  "files": [
+    "dist",
+    "src",
+    "!**/tsconfig*.tsbuildinfo",
+    "!dist/tests"
+  ],
+  "type": "module",
+  "source": "./src/index.ts",
+  "types": "./dist/types/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/src/index.d.ts",
+      "default": "./dist/esm/src/index.js"
+    },
+    "./standalone": {
+      "types": "./dist/types/src/standalone.d.ts",
+      "default": "./dist/esm/src/standalone.js"
+    }
+  }
+}

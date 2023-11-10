@@ -15,6 +15,13 @@ on:
   schedule:
     - cron: "42 19 * * 0"
 
+# copy-pasted from ci.yml
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: quantified-uncertainty
+  # used by turbo cache hashes, see turbo.json
+  PLATFORM: github
+
 jobs:
   analyze:
     name: Analyze
@@ -33,7 +40,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
@@ -50,9 +57,17 @@ jobs:
       - name: Autobuild
         uses: github/codeql-action/autobuild@v2
       - name: Install dependencies
-        run: yarn
-      - name: Build rescript
-        run: cd packages/squiggle-lang && yarn build
+        run: pnpm install
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "pnpm"
+      - name: Build
+        run: npx turbo run build
       # ℹ️ Command-line programs to run using the OS shell.
       # 📚 https://git.io/JvXDl
 

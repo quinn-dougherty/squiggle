@@ -1,92 +1,78 @@
-import React from "react";
-import { CodeEditor } from "./CodeEditor";
-import { environment, bindings, jsImports } from "@quri/squiggle-lang";
-import { defaultImports, defaultBindings } from "@quri/squiggle-lang";
-import { SquiggleContainer } from "./SquiggleContainer";
-import { SquiggleChart, SquiggleChartProps } from "./SquiggleChart";
-import { useSquigglePartial, useMaybeControlledValue } from "../lib/hooks";
-import { SquiggleErrorAlert } from "./SquiggleErrorAlert";
+import { FC, useMemo, useRef } from "react";
 
-const WrappedCodeEditor: React.FC<{
-  code: string;
-  setCode: (code: string) => void;
-}> = ({ code, setCode }) => (
-  <div className="border border-grey-200 p-2 m-4">
-    <CodeEditor
-      value={code}
-      onChange={setCode}
-      oneLine={true}
-      showGutter={false}
-      height={20}
-    />
-  </div>
-);
+import { useUncontrolledCode } from "../lib/hooks/index.js";
+import { useSquiggle } from "../lib/hooks/useSquiggle.js";
+import { getErrors } from "../lib/utility.js";
+import { CodeEditor, CodeEditorHandle } from "./CodeEditor.js";
+import { DynamicSquiggleViewer } from "./DynamicSquiggleViewer.js";
+import { PartialPlaygroundSettings } from "./PlaygroundSettings.js";
+import { useRunnerState } from "../lib/hooks/useRunnerState.js";
+import { SquiggleCodeProps } from "./types.js";
 
-export type SquiggleEditorProps = SquiggleChartProps & {
-  defaultCode?: string;
-  onCodeChange?: (code: string) => void;
-};
+export type SquiggleEditorProps = SquiggleCodeProps & {
+  hideViewer?: boolean;
+  localSettingsEnabled?: boolean;
+  // environment comes from SquiggleCodeProps
+} & Omit<PartialPlaygroundSettings, "environment">;
 
-export const SquiggleEditor: React.FC<SquiggleEditorProps> = (props) => {
-  const [code, setCode] = useMaybeControlledValue({
-    value: props.code,
-    defaultValue: props.defaultCode ?? "",
-    onChange: props.onCodeChange,
-  });
-
-  let chartProps = { ...props, code };
-  return (
-    <SquiggleContainer>
-      <WrappedCodeEditor code={code} setCode={setCode} />
-      <SquiggleChart {...chartProps} />
-    </SquiggleContainer>
-  );
-};
-
-export interface SquigglePartialProps {
-  /** The text inside the input (controlled) */
-  code?: string;
-  /** The default text inside the input (unControlled) */
-  defaultCode?: string;
-  /** when the environment changes. Used again for notebook magic*/
-  onChange?(expr: bindings | undefined): void;
-  /** When the code changes */
-  onCodeChange?(code: string): void;
-  /** Previously declared variables */
-  bindings?: bindings;
-  /** If the output requires monte carlo sampling, the amount of samples */
-  environment?: environment;
-  /** Variables imported from js */
-  jsImports?: jsImports;
-}
-
-export const SquigglePartial: React.FC<SquigglePartialProps> = ({
-  code: controlledCode,
-  defaultCode = "",
-  onChange,
+export const SquiggleEditor: FC<SquiggleEditorProps> = ({
+  defaultCode: propsDefaultCode,
   onCodeChange,
-  bindings = defaultBindings,
+  project: propsProject,
+  continues,
   environment,
-  jsImports = defaultImports,
-}: SquigglePartialProps) => {
-  const [code, setCode] = useMaybeControlledValue<string>({
-    value: controlledCode,
-    defaultValue: defaultCode,
-    onChange: onCodeChange,
+  hideViewer,
+  localSettingsEnabled,
+  ...settings
+}) => {
+  const { code, setCode, defaultCode } = useUncontrolledCode({
+    defaultCode: propsDefaultCode,
+    onCodeChange,
   });
 
-  const result = useSquigglePartial({
-    code,
-    bindings,
-    environment,
-    jsImports,
-    onChange,
+  const runnerState = useRunnerState(code);
+
+  const [squiggleOutput, { project, isRunning }] = useSquiggle({
+    code: runnerState.renderedCode,
+    executionId: runnerState.executionId,
+    ...(propsProject ? { project: propsProject, continues } : { environment }),
   });
+
+  const errors = useMemo(() => {
+    if (!squiggleOutput) {
+      return [];
+    }
+    return getErrors(squiggleOutput.output);
+  }, [squiggleOutput]);
+
+  const editorRef = useRef<CodeEditorHandle>(null);
 
   return (
-    <SquiggleContainer>
-      <WrappedCodeEditor code={code} setCode={setCode} />
-      {result.tag !== "Ok" ? <SquiggleErrorAlert error={result.value} /> : null}
-    </SquiggleContainer>
+    <div>
+      <div
+        className="border border-grey-200 p-2 m-4"
+        data-testid="squiggle-editor"
+      >
+        <CodeEditor
+          defaultValue={defaultCode ?? ""}
+          onChange={setCode}
+          showGutter={false}
+          errors={errors}
+          project={project}
+          ref={editorRef}
+          onSubmit={() => runnerState.run()}
+        />
+      </div>
+      {hideViewer || !squiggleOutput?.code ? null : (
+        <DynamicSquiggleViewer
+          squiggleOutput={squiggleOutput}
+          isRunning={isRunning}
+          localSettingsEnabled={localSettingsEnabled}
+          editor={editorRef.current ?? undefined}
+          environment={environment}
+          {...settings}
+        />
+      )}
+    </div>
   );
 };

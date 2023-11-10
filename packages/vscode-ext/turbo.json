@@ -1,0 +1,15 @@
+{
+  "extends": ["//"],
+  "pipeline": {
+    "build": {
+      "dependsOn": [
+        "^build",
+        "@quri/prettier-plugin-squiggle#build" // TODO - why is this necessary?
+      ],
+      "outputs": ["dist/**"]
+    },
+    "lint": {
+      "dependsOn": ["^build:ts"]
+    }
+  }
+}

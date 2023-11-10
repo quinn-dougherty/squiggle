@@ -1,8 +1,6 @@
-dist
-lib
-*.bs.js
-*.gen.tsx
+/dist
 .nyc_output/
-_coverage/
-.cache/
-Reducer_Peggy_GeneratedParser.js
+coverage/
+src/ast/peggyParser.js
+src/public/SqProject/IncludeParser.js
+__tests__/fixtures

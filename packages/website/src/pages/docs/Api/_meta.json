@@ -1,0 +1,15 @@
+{
+  "BuiltIn": "Built In",
+  "Dictionary": "Dictionary",
+  "Dist": "Distribution",
+  "DistSampleSet": "Sample Set Distribution",
+  "DistPointSet": "Point Set Distribution",
+  "List": "List",
+  "Math": "Math",
+  "Number": "Number",
+  "Plot": "Plot",
+  "String": "String",
+  "Table": "Table",
+  "Calculator": "Calculator",
+  "Danger": "Danger"
+}

@@ -1,31 +1,5 @@
-# CODEOWNERS file
-#
 # This file is used to describe who owns what in this repository.
-#
 # For documentation on this file, see https://help.github.com/articles/about-codeowners/
 # Mentioned users will get code review requests.
-#
-# IMPORTANT NOTE: in order to actually get pinged, commit access is required.
-# This also holds true for GitHub teams.
 
-# Rescript 
-*.res @OAGr
-*.resi @OAGr
-
-# Typescript 
-*.tsx @Hazelfire @OAGr
-*.ts @Hazelfire @OAGr
-
-# Javascript
-*.js @Hazelfire @OAGr
-
-# Any opsy files
-.github/** @quinn-dougherty @OAGr
-*.json @quinn-dougherty @Hazelfire @OAGr
-*.y*ml @quinn-dougherty @OAGr
-*.config.js @Hazelfire @OAGr
-netlify.toml @quinn-dougherty @OAGr @Hazelfire 
-
-# Documentation
-*.md @quinn-dougherty @OAGr @Hazelfire
-*.mdx @quinn-dougherty @OAGr @Hazelfire
+* @OAgr @berekuk

@@ -1,0 +1,3 @@
+import "./common.squiggle" as localCommon
+import "../common.squiggle" as common
+export x = localCommon.x + common.x

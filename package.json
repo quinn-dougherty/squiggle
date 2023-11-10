@@ -4,18 +4,15 @@
   "name": "squiggle",
   "scripts": {
     "nodeclean": "rm -r node_modules && rm -r packages/*/node_modules",
-    "format:all": "prettier --write . && cd packages/squiggle-lang && yarn format",
-    "lint:all": "prettier --check . && cd packages/squiggle-lang && yarn lint:rescript"
+    "preinstall": "npx only-allow pnpm",
+    "changeset-version": "cd packages/ops && turbo build && pnpm run changeset-version",
+    "publish-all": "cd packages/ops && turbo build && pnpm run publish-all",
+    "post-publish": "cd packages/ops && turbo build && pnpm run post-publish"
   },
   "devDependencies": {
-    "prettier": "^2.7.1"
-  },
-  "workspaces": [
-    "packages/*"
-  ],
-  "resolutions": {
-    "@types/react": "^18.0.1",
-    "react": "^18.0.0"
-  },
-  "packageManager": "yarn@1.22.17"
+    "@changesets/cli": "^2.26.2",
+    "prettier": "^3.0.3",
+    "turbo": "^1.10.16",
+    "turbo-ignore": "^1.10.16"
+  }
 }

@@ -1,0 +1,28 @@
+{
+  "name": "@quri/ops",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "changeset-version": "node ./dist/scripts/changeset-version.js",
+    "publish-all": "node ./dist/scripts/publish-all.js",
+    "post-publish": "node ./dist/scripts/post-publish.js"
+  },
+  "devDependencies": {
+    "@changesets/get-github-info": "^0.5.2",
+    "@changesets/types": "^5.2.1",
+    "@types/lodash": "^4.14.200",
+    "@types/node": "^20.8.10",
+    "tsx": "^3.14.0",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "mdast-util-to-string": "^4.0.0",
+    "remark-parse": "^11.0.0",
+    "remark-stringify": "^11.0.0",
+    "unified": "^11.0.4",
+    "zod": "^3.22.4"
+  }
+}

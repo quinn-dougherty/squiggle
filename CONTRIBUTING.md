@@ -1,64 +1,53 @@
-_The current document was written quickly and not exhaustively, yet, it's unfinished. [Template here](https://mozillascience.github.io/working-open-workshop/contributing/)_
-
 # Contributing to Squiggle
 
-We welcome contributions from developers, especially people in react/typescript, rescript, and interpreters/parsers. We also are keen to hear issues filed by users!
+We welcome contributions from developers, especially people in React/TypeScript, and interpreters/parsers. We also are keen to hear issues filed by users!
 
-Squiggle is currently pre-alpha.
+Squiggle is currently in "Early Access" mode.
 
 # Quick links
 
-- [Roadmap to the alpha](https://github.com/orgs/quantified-uncertainty/projects/1)
-- The team presently communicates via the **EA Forecasting and Epistemics** slack (channels `#squiggle` and `#squiggle-ops`), you can track down an invite by reaching out to Ozzie Gooen
-- [Squiggle documentation](https://www.squiggle-language.com/docs/Language)
-- [Rescript documentation](https://rescript-lang.org/docs/manual/latest/introduction)
-- You can email `quinn@quantifieduncertainty.org` if you need assistance in onboarding or if you have questions
+- [Squiggle documentation](https://www.squiggle-language.com/docs/Overview)
+- The team presently communicates via the **EA Forecasting and Epistemics** slack (channels `#squiggle-dev` and `#squiggle-ops`). You can track down an invite by reaching out to Ozzie Gooen
+- You can email `slava@quantifieduncertainty.org` if you need assistance in onboarding or if you have questions
 
 # Bug reports
 
-Anyone (with a github account) can file an issue at any time. Please allow Quinn, Sam, and Ozzie to triage, but otherwise just follow the suggestions in the issue templates.
+Anyone (with a GitHub account) can file an issue at any time. Please allow [Slava](https://github.com/berekuk) and [Ozzie](https://github.com/OAGr) to triage, but otherwise just follow the suggestions in the issue templates.
 
 # Project structure
 
-Squiggle is a **monorepo** with three **packages**.
+Squiggle is a **monorepo** with several **packages**.
 
 - **components** is where we improve reactive interfacing with Squiggle
 - **squiggle-lang** is where the magic happens: probability distributions, the interpreter, etc.
-- **website** is the site `squiggle-language.com`
+- **website** is the site [squiggle-language.com](https://www.squiggle-language.com)
+- **vscode-ext** is the [VS Code extension](https://marketplace.visualstudio.com/items?itemName=qURI.vscode-squiggle)
+
+# VS Code
+
+If you want to use [VS Code Jest extension](https://github.com/jest-community/vscode-jest), or share other useful workspace settings, such as multi-root mode, move `.vscode/squiggle.code-workspace.default` file to `.vscode/squiggle.code-workspace`.
 
 # Deployment ops
 
-We use netlify, and it should only concern Quinn, Sam, and Ozzie.
+We use Vercel, and it should only concern Slava and Ozzie.
 
 # Development environment, building, testing, dev server
 
-You need `yarn`.
+You'll need [pnpm](https://pnpm.io/).
 
-Being a monorepo, where packages are connected by dependency, it's important to follow `README.md`s closely. Each package has it's own `README.md`, which is where the bulk of information is.
+Being a monorepo, where packages are connected by dependency, it's important to follow `README.md`s closely. Each package has its own `README.md`, which is where the bulk of information is.
 
 We aspire for `ci.yaml` and `README.md`s to be in one-to-one correspondence.
 
-## If you're on NixOS
-
-You can't run `yarn` outside of a FHS shell. Additionally, you need to `patchelf` some things. A script does everything for you.
-
-```sh
-./nixos.sh
-```
-
-Reasons for this are comments in the script. Then, you should be able to do all the package-level `yarn run` commands/scripts.
-
-# Try not to push directly to develop
+# Try not to push directly to `main`
 
 If you absolutely must, please prefix your commit message with `hotfix: `.
 
 # Pull request protocol
 
-Please work against `develop` branch. **Do not** work against `master`.
+Please work against `main` branch.
 
-- For rescript code: Quinn and Ozzie are reviewers
-- For js or typescript code: Sam and Ozzie are reviewers
-- For ops code (i.e. yaml, package.json): Quinn and Sam are reviewers
+For PRs from the core contributor team, we usually wait for at least one review unless the PR is trivial or urgent.
 
 Autopings are set up: if you are not autopinged, you are welcome to comment, but please do not use the formal review feature, send approvals, rejections, or merges.
 
@@ -69,76 +58,75 @@ Autopings are set up: if you are not autopinged, you are welcome to comment, but
 
 * This quality score is subjective.
 
-# Rescript Style
+# TypeScript style
 
-**Use `->` instead of `|>`**  
-Note: Our codebase used to use `|>`, so there's a lot of that in the system. We'll gradually change it.
+**Prefer `const` over `let`, never use `var`**
 
-**Use `x -> y -> z` instead of `let foo = y(x); let bar = z(foo)`**
+`var` is deprecated in JS. `let` should only be used for mutable variables.
 
-**Don't use anonymous functions with over three lines**  
-Bad:
+**Use functional style, avoid classes**
 
-```rescript
-  foo
-  -> E.O.fmap(r => {
-    let a = 34;
-    let b = 35;
-    let c = 48;
-    r + a + b + c
-  }
-```
+We use classes for outer-facing APIs, but most of the codebase should use plain immutable objects with functions act on those objects.
 
-Good:
+**Use immutable types when it doesn't hurt the performance**
 
-```rescript
-  let addingFn = (r => {
-    let a = 34;
-    let b = 35;
-    let c = 48;
-    r + a + b + c
-  }
-  foo -> addingFn
-```
+Wrap object types in [Readonly](https://www.typescriptlang.org/docs/handbook/utility-types.html#readonlytype) or mark individual fields as `readonly`.
 
-**Write out types for everything, even if there's an interface file**  
-We'll try this for one month (ending May 5, 2022), then revisit.
+**Don't use namespaces**
 
-**Use the Rescript optional default syntax**  
-Rescript is clever about function inputs. There's custom syntax for default and optional arguments. In the cases where this applies, use it.
+Use native ES modules instead, as [recommended by TypeScript documentation](https://www.typescriptlang.org/docs/handbook/namespaces-and-modules.html#using-modules).
 
-From https://rescript-lang.org/docs/manual/latest/function:
+**Avoid `any` as much as possible**
 
-```rescript
-// radius can be omitted
-let drawCircle = (~color, ~radius=?, ()) => {
-  setColor(color)
-  switch radius {
-  | None => startAt(1, 1)
-  | Some(r_) => startAt(r_, r_)
-  }
-}
-```
+It's almost always possible to type things properly with modern Typescript.
 
-**Use named arguments**  
-If a function is called externally (in a different file), and has either:
+**Always use `===` instead of `==`**
 
-1. Two arguments of the same type
-2. Three paramaters or more.
+Loose equality is [crazy](https://dorey.github.io/JavaScript-Equality-Table/unified/).
 
-**Module naming: Use x_y as module names**  
-For example: `Myname_Myproject_Add.res`. Rescript/Ocaml both require files to have unique names, so long names are needed to keep different parts separate from each other.
+**Don't use too many external libraries**
 
-See [this page](https://dev.to/yawaramin/a-modular-ocaml-project-structure-1ikd) for more information. (Though note that they use two underscores, and we do one. We might refactor that later.
+This is especially important in `squiggle-lang` and less important in `website` or some other code that won't be used much as a library by many users.
 
-**Module naming: Don't rename modules**
-We have some of this in the Reducer code, but generally discourage it.
+Heuristics for deciding whether pulling an external library is worth it:
 
-**Use interface files (.resi) for files with very public interfaces**
+- is it maintained? is it going to stay maintained in the future?
+- how hard it would be to reimplement the functionality ourselves? if it's a few lines, it's better to control the implementation in our own codebase
+- what's the bundle size of the dependency and would it be effectively tree-shaked, if the dependency is big and we need only a small part of it?
+- would we want to fine-tune the implementation in the future, because of Squiggle's design needs or for the sake of performance?
+  - the closer to the "core" functionality of Squiggle the feature is (math, distributions-related code), the more it makes sense to keep control over the implementation details
 
-### Recommended Rescript resources
+**Prefer named exports over default exports**
 
-- https://dev.to/yawaramin/a-modular-ocaml-project-structure-1ikd
-- https://github.com/avohq/reasonml-code-style-guide
-- https://cs.brown.edu/courses/cs017/content/docs/reasonml-style.pdf
-- https://github.com/ostera/reason-design-patterns/
+It's easier to do refactorings with named exports.
+
+**Name files according to their main named exports; split code into many small files**
+
+This is expecially straightforward in the frontend code; try to put one component in a single file, `export const MyComponent: FC = ...` from `MyComponent.tsx`.
+
+In the squiggle-lang code, I'm not sure yet if this is viable.
+
+**Prefer `type` over `interface`**
+
+In the modern TypeScript there's no [big](https://stackoverflow.com/questions/37233735/interfaces-vs-types-in-typescript/52682220) [difference](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#differences-between-type-aliases-and-interfaces) between types and interfaces. Errors in interfaces can be slightly nicer, but interfaces are open by default and we mostly don't want that.
+
+It's not worth fighting over, though, the difference is pretty small.
+
+**Prefer `function` keyword over arrow functions in top scope, use arrow functions otherwise**
+
+Exceptions:
+
+- For React components, it's better to use `const my Component: FC<...> = ` since it type-checks both the arguments and the result type.
+- In some other cases where you have several functions with the similar signature, it's also convenient to define a type for the entire function, and you have to use arrow functions to use it.
+
+Also, don't use `function` keyword in non-top scopes (it's easier to avoid hoisting quirks this way).
+
+**Prefer `undefined` over `null`**
+
+**Use `UpperCamelCase` for type names, `camelCase` for variable names**
+
+**Use exceptions instead of Ok/Error pairs, wrap in try/catch on top level if necessary**
+
+**https://github.com/airbnb/javascript is mostly good**
+
+When it doesn't contradict the list above.

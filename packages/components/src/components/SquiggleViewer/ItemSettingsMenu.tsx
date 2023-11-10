@@ -1,86 +1,67 @@
-import { CogIcon } from "@heroicons/react/solid";
-import React, { useContext, useRef, useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { Modal } from "../ui/Modal";
-import { ViewSettings, viewSettingsSchema } from "../ViewSettings";
-import { Path, pathAsString } from "./utils";
-import { ViewerContext } from "./ViewerContext";
+import { CogIcon } from "@heroicons/react/solid/esm/index.js";
+import { zodResolver } from "@hookform/resolvers/zod";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+
+import { Modal, TextTooltip } from "@quri/ui";
+
+import { SqValueWithContext } from "../../lib/utility.js";
 import {
-  defaultColor,
-  defaultTickFormat,
-} from "../../lib/distributionSpecBuilder";
-import { PlaygroundContext } from "../SquigglePlayground";
+  MetaSettings,
+  PlaygroundSettingsForm,
+  viewSettingsSchema,
+} from "../PlaygroundSettings.js";
+import { PlaygroundContext } from "../SquigglePlayground/index.js";
+import {
+  ViewerContext,
+  useSetLocalItemState,
+  useViewerContext,
+  useResetStateSettings,
+} from "./ViewerProvider.js";
+import { pathAsString } from "./utils.js";
 
 type Props = {
-  path: Path;
+  value: SqValueWithContext;
   onChange: () => void;
-  disableLogX?: boolean;
+  metaSettings?: MetaSettings;
   withFunctionSettings: boolean;
 };
 
 const ItemSettingsModal: React.FC<
   Props & { close: () => void; resetScroll: () => void }
 > = ({
-  path,
+  value,
   onChange,
-  disableLogX,
+  metaSettings,
   withFunctionSettings,
   close,
   resetScroll,
 }) => {
-  const { setSettings, getSettings, getMergedSettings } =
-    useContext(ViewerContext);
+  const setLocalItemState = useSetLocalItemState();
+  const { getLocalItemState, getMergedSettings } = useViewerContext();
 
-  const mergedSettings = getMergedSettings(path);
+  const { path } = value.context;
 
-  const { register, watch } = useForm({
-    resolver: yupResolver(viewSettingsSchema),
-    defaultValues: {
-      // this is a mess and should be fixed
-      showEditor: true, // doesn't matter
-      chartHeight: mergedSettings.height,
-      showSummary: mergedSettings.distributionPlotSettings.showSummary,
-      logX: mergedSettings.distributionPlotSettings.logX,
-      expY: mergedSettings.distributionPlotSettings.expY,
-      tickFormat:
-        mergedSettings.distributionPlotSettings.format || defaultTickFormat,
-      title: mergedSettings.distributionPlotSettings.title,
-      color: mergedSettings.distributionPlotSettings.color || defaultColor,
-      minX: mergedSettings.distributionPlotSettings.minX,
-      maxX: mergedSettings.distributionPlotSettings.maxX,
-      distributionChartActions: mergedSettings.distributionPlotSettings.actions,
-      diagramStart: mergedSettings.chartSettings.start,
-      diagramStop: mergedSettings.chartSettings.stop,
-      diagramCount: mergedSettings.chartSettings.count,
-    },
+  const mergedSettings = getMergedSettings({ path });
+
+  const form = useForm({
+    resolver: zodResolver(viewSettingsSchema),
+    defaultValues: mergedSettings,
+    mode: "onChange",
   });
+
   useEffect(() => {
-    const subscription = watch((vars) => {
-      const settings = getSettings(path); // get the latest version
-      setSettings(path, {
-        ...settings,
-        distributionPlotSettings: {
-          showSummary: vars.showSummary,
-          logX: vars.logX,
-          expY: vars.expY,
-          format: vars.tickFormat,
-          title: vars.title,
-          color: vars.color,
-          minX: vars.minX,
-          maxX: vars.maxX,
-          actions: vars.distributionChartActions,
-        },
-        chartSettings: {
-          start: vars.diagramStart,
-          stop: vars.diagramStop,
-          count: vars.diagramCount,
-        },
+    const submit = form.handleSubmit((data) => {
+      setLocalItemState(path, {
+        collapsed: false,
+        settings: data,
       });
       onChange();
     });
+
+    const subscription = form.watch(() => submit());
     return () => subscription.unsubscribe();
-  }, [getSettings, setSettings, onChange, path, watch]);
+  }, [getLocalItemState, setLocalItemState, onChange, path, form]);
 
   const { getLeftPanelElement } = useContext(PlaygroundContext);
 
@@ -88,7 +69,7 @@ const ItemSettingsModal: React.FC<
     <Modal container={getLeftPanelElement()} close={close}>
       <Modal.Header>
         Chart settings
-        {path.length ? (
+        {path.items.length ? (
           <>
             {" for "}
             <span
@@ -97,19 +78,20 @@ const ItemSettingsModal: React.FC<
               onClick={resetScroll}
             >
               {pathAsString(path)}
-            </span>{" "}
+            </span>
           </>
         ) : (
           ""
         )}
       </Modal.Header>
       <Modal.Body>
-        <ViewSettings
-          register={register}
-          withShowEditorSetting={false}
-          withFunctionSettings={withFunctionSettings}
-          disableLogXSetting={disableLogX}
-        />
+        <FormProvider {...form}>
+          <PlaygroundSettingsForm
+            withGlobalSettings={false}
+            withFunctionSettings={withFunctionSettings}
+            metaSettings={metaSettings}
+          />
+        </FormProvider>
       </Modal.Body>
     </Modal>
   );
@@ -117,41 +99,42 @@ const ItemSettingsModal: React.FC<
 
 export const ItemSettingsMenu: React.FC<Props> = (props) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { enableLocalSettings, setSettings, getSettings } =
+  const resetStateSettings = useResetStateSettings();
+  const { localSettingsEnabled, getLocalItemState, dispatch } =
     useContext(ViewerContext);
 
   const ref = useRef<HTMLDivElement | null>(null);
 
-  if (!enableLocalSettings) {
+  if (!localSettingsEnabled) {
     return null;
   }
-  const settings = getSettings(props.path);
+
+  const { path } = props.value.context;
+
+  const localState = getLocalItemState({ path });
 
   const resetScroll = () => {
-    if (!ref.current) return;
-    window.scroll({
-      top: ref.current.getBoundingClientRect().y + window.scrollY,
-      behavior: "smooth",
+    dispatch({
+      type: "SCROLL_TO_PATH",
+      payload: { path },
     });
   };
 
   return (
     <div className="flex gap-2" ref={ref}>
-      <CogIcon
-        className="h-5 w-5 cursor-pointer text-slate-400 hover:text-slate-500"
-        onClick={() => setIsOpen(!isOpen)}
-      />
-      {settings.distributionPlotSettings || settings.chartSettings ? (
+      <TextTooltip text="Settings" placement="bottom-end">
+        <CogIcon
+          className="h-5 w-5 cursor-pointer text-stone-100 hover:!text-stone-500 group-hover:text-stone-400 transition"
+          onClick={() => setIsOpen(!isOpen)}
+        />
+      </TextTooltip>
+      {localState.settings.distributionChartSettings ? (
         <button
           onClick={() => {
-            setSettings(props.path, {
-              ...settings,
-              distributionPlotSettings: undefined,
-              chartSettings: undefined,
-            });
+            resetStateSettings(path, localState);
             props.onChange();
           }}
-          className="text-xs px-1 py-0.5 rounded bg-slate-300"
+          className="text-xs px-1 py-0.5 rounded bg-stone-200 hover:bg-stone-400"
         >
           Reset settings
         </button>

@@ -1,0 +1,7 @@
+/dist
+/.env
+/.env.test
+/tsconfig.tsbuildinfo
+/.next
+/.vscode
+__generated__

@@ -1,14 +1,17 @@
-/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
-module.exports = {
-  preset: "ts-jest",
+const jestConfig = {
   testEnvironment: "node",
-  setupFilesAfterEnv: [
-    "<rootdir>/../../node_modules/bisect_ppx/src/runtime/js/jest.bs.js",
-  ],
+  extensionsToTreatAsEsm: [".ts"],
+  moduleNameMapper: {
+    "^(.*/peggyParser\\.js)$": "$1",
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+  },
   testPathIgnorePatterns: [
-    ".*Fixtures.bs.js",
-    "/node_modules/",
-    ".*Helpers.bs.js",
-    ".*Helpers.ts",
+    "<rootDir>/node_modules/",
+    "<rootDir>/dist",
+    "<rootDir>/__tests__/fixtures",
+    "<rootDir>/__tests__/helpers",
+    ".*_type_test.ts",
   ],
 };
+
+export default jestConfig;

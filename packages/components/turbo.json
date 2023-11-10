@@ -1,0 +1,18 @@
+{
+  "extends": ["//"],
+  "pipeline": {
+    "build": {
+      "outputs": [
+        "dist/**",
+        "storybook-static/**",
+        "src/languageSupport/generated/**"
+      ]
+    },
+    "build:ts": {
+      "dependsOn": ["build:lezer"]
+    },
+    "build:lezer": {
+      "outputs": ["src/languageSupport/generated/**"]
+    }
+  }
+}

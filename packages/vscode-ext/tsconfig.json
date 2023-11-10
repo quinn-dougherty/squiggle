@@ -1,13 +1,17 @@
 {
   "compilerOptions": {
+    // build settings
     "module": "commonjs",
     "target": "es2020",
     "lib": ["es2020", "dom"],
-    "outDir": "out",
+    "noEmit": true,
+    "composite": true,
     "rootDir": "src",
-    "sourceMap": true
+    "jsx": "react-jsx",
+    // type check settings
+    "strict": true,
+    "skipLibCheck": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules", ".vscode-test"],
-  "references": [{ "path": "./client" }, { "path": "./server" }]
+  "include": ["src/**/*"],
+  "references": [{ "path": "../squiggle-lang" }, { "path": "../components" }]
 }

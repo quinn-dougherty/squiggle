@@ -1,10 +1,10 @@
 import * as React from "react";
 import {
-  XCircleIcon,
-  InformationCircleIcon,
   CheckCircleIcon,
-} from "@heroicons/react/solid";
-import clsx from "clsx";
+  InformationCircleIcon,
+  XCircleIcon,
+} from "@heroicons/react/solid/esm/index.js";
+import { clsx } from "clsx";
 
 export const Alert: React.FC<{
   heading: string;
@@ -24,13 +24,16 @@ export const Alert: React.FC<{
   children,
 }) => {
   return (
-    <div className={clsx("rounded-md p-4", backgroundColor)}>
+    <div
+      className={clsx("rounded-sm px-3 py-2", backgroundColor)}
+      role="status"
+    >
       <div className="flex">
         <Icon
           className={clsx("h-5 w-5 flex-shrink-0", iconColor)}
           aria-hidden="true"
         />
-        <div className="ml-3">
+        <div className="ml-3 grow">
           <header className={clsx("text-sm font-medium", headingColor)}>
             {heading}
           </header>
@@ -64,7 +67,7 @@ export const MessageAlert: React.FC<{
   <Alert
     {...props}
     backgroundColor="bg-slate-100"
-    headingColor="text-slate-700"
+    headingColor="text-slate-800"
     bodyColor="text-slate-700"
     icon={InformationCircleIcon}
     iconColor="text-slate-400"
