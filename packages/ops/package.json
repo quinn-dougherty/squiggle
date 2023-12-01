@@ -10,7 +10,7 @@
     "post-publish": "node ./dist/scripts/post-publish.js"
   },
   "devDependencies": {
-    "@changesets/get-github-info": "^0.5.2",
+    "@changesets/get-github-info": "^0.6.0",
     "@changesets/types": "^5.2.1",
     "@types/lodash": "^4.14.200",
     "@types/node": "^20.8.10",
